@@ -112,7 +112,7 @@
                                class="bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none text-lg font-bold uppercase text-blue-600 dark:text-blue-400 w-32 transition-colors px-1" 
                                onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Ticker'">
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">v5.3</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">v5.4</p>
                 </div>
             </div>
             
@@ -246,10 +246,17 @@
                         <input type="number" id="manualGrowth" value="0" step="0.1" disabled>
                     </div>
                     
-                    <!-- Mobile only calculate button for redundancy -->
-                    <button onclick="runSimulation()" class="md:hidden w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-lg mt-2">
-                        Calculate
-                    </button>
+                    <!-- Action Buttons -->
+                    <div class="flex gap-2 mt-4">
+                        <!-- Mobile only calculate button -->
+                        <button onclick="runSimulation()" class="md:hidden flex-grow bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-lg">
+                            Calculate
+                        </button>
+                        <!-- Clear Fields Button -->
+                        <button onclick="clearFields()" class="w-full md:w-auto flex-grow bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-lg transition shadow-sm">
+                            Clear Fields
+                        </button>
+                    </div>
                 </div>
             </aside>
 
@@ -575,6 +582,49 @@
             });
         }
 
+        // --- CLEAR FIELDS LOGIC ---
+        function clearFields() {
+            if(!confirm('Are you sure you want to clear all fields?')) return;
+            
+            // Clear Simulation Inputs
+            const simIds = [
+                'tickerSymbol', 'shares', 'avgPrice', 'currPrice', 
+                'initialCapital', 'monthlyContribution', 'divYield', 'manualGrowth'
+            ];
+            
+            simIds.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.value = '';
+                    localStorage.removeItem(id);
+                }
+            });
+            
+            // Reset Selects
+            document.getElementById('reinvestMode').selectedIndex = 0;
+            document.getElementById('duration').value = "12";
+            document.getElementById('scenario').value = 'flat';
+            
+            // Update State
+            localStorage.removeItem('reinvestMode');
+            localStorage.removeItem('duration');
+            localStorage.removeItem('scenario');
+            updateGrowthInput();
+
+            // Clear Averaging Inputs
+            const avgIds = ['avg_shares', 'avg_entryPrice', 'avg_marketPrice', 'avg_sellCount', 'avg_buyCount', 'avg_buyPrice'];
+            avgIds.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.value = '';
+                    localStorage.removeItem(id);
+                }
+            });
+
+            // Run with empty values
+            runSimulation();
+        }
+
         // --- PRESETS LOGIC ---
         function openPresetsModal() {
             document.getElementById('presetsModal').classList.remove('hidden');
@@ -874,13 +924,13 @@
         // --- Logic: Simulation ---
         function runSimulation() {
             // Inputs
-            const initialShares = parseFloat(document.getElementById('shares').value);
-            const avgPrice = parseFloat(document.getElementById('avgPrice').value);
-            const startPrice = parseFloat(document.getElementById('currPrice').value);
-            const initialCapital = parseFloat(document.getElementById('initialCapital').value);
+            const initialShares = parseFloat(document.getElementById('shares').value) || 0;
+            const avgPrice = parseFloat(document.getElementById('avgPrice').value) || 0;
+            const startPrice = parseFloat(document.getElementById('currPrice').value) || 0;
+            const initialCapital = parseFloat(document.getElementById('initialCapital').value) || 0;
             const monthlyContrib = parseFloat(document.getElementById('monthlyContribution').value) || 0;
             
-            const divYieldPercent = parseFloat(document.getElementById('divYield').value);
+            const divYieldPercent = parseFloat(document.getElementById('divYield').value) || 0;
             const reinvestMode = document.getElementById('reinvestMode').value;
             const durationMonths = parseInt(document.getElementById('duration').value);
             const enableVolatility = document.getElementById('enableVolatility').checked;
@@ -888,7 +938,7 @@
 
             // Growth Logic
             const scenario = document.getElementById('scenario').value;
-            let annualGrowthPct = parseFloat(document.getElementById('manualGrowth').value);
+            let annualGrowthPct = parseFloat(document.getElementById('manualGrowth').value) || 0;
             if(scenario === 'flat') annualGrowthPct = 0; 
 
             // Update title
