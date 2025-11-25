@@ -69,7 +69,7 @@
                 <div>
                     <h1 class="text-xl font-bold leading-tight hidden md:block">Universal Strategy Tool</h1>
                     <h1 class="text-xl font-bold leading-tight md:hidden">Strategy Tool</h1>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Yield Model & Repair Calculator (v4.5)</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Yield Model & Repair Calculator (v4.6)</p>
                 </div>
             </div>
             
@@ -123,6 +123,12 @@
                 <h2 class="text-lg font-bold mb-4 border-b pb-2 dark:border-gray-700">Вводные данные</h2>
                 
                 <div class="space-y-4">
+                    <!-- Ticker Input (New) -->
+                    <div class="input-group pb-2 border-b dark:border-gray-800">
+                        <label class="text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider text-xs">Тикер актива</label>
+                        <input type="text" id="tickerSymbol" value="BITO" placeholder="Напр. BITO, BTC" class="font-bold text-xl bg-transparent border-none p-0 focus:ring-0 uppercase" style="border: none; padding-left: 0;">
+                    </div>
+
                     <div class="input-group">
                         <label>Кол-во акций / Лотов</label>
                         <input type="number" id="shares" value="304">
@@ -422,8 +428,8 @@
                 
                 <!-- Save New -->
                 <div class="flex gap-2 mb-4">
-                    <input type="text" id="newPresetName" placeholder="Название (напр. Агрессивный)" class="flex-grow p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
-                    <button onclick="savePreset()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Сохранить</button>
+                    <input type="text" id="newPresetName" placeholder="Название пресета" class="flex-grow p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 text-sm">
+                    <button onclick="savePreset()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-bold">Сохранить</button>
                 </div>
 
                 <!-- Search -->
@@ -457,6 +463,7 @@
         
         // --- PERSISTENCE LAYER ---
         const PERSISTENT_IDS = [
+            'tickerSymbol', // Added
             'shares', 'avgPrice', 'currPrice', 'initialCapital', 'monthlyContribution',
             'divYield', 'reinvestMode', 'duration', 'scenario', 'manualGrowth',
             'avg_shares', 'avg_entryPrice', 'avg_marketPrice', 
@@ -503,8 +510,25 @@
         function openPresetsModal() {
             document.getElementById('presetsModal').classList.remove('hidden');
             document.getElementById('presetsModal').classList.add('flex');
-            // Clear search on open
+            // Clear search
             document.getElementById('presetSearch').value = '';
+            
+            // Auto-fill Preset Name
+            const ticker = document.getElementById('tickerSymbol').value.trim().toUpperCase() || 'ASSET';
+            const durationText = document.getElementById('duration').options[document.getElementById('duration').selectedIndex].text;
+            
+            const now = new Date();
+            // yy-mm-dd
+            const year = now.getFullYear().toString().slice(-2);
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            // HH:mm
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            const autoName = `${ticker} - ${durationText} - ${year}-${month}-${day} - ${hours}:${minutes}`;
+            document.getElementById('newPresetName').value = autoName;
+
             renderPresetsList();
         }
 
@@ -556,7 +580,7 @@
             presets[name] = currentData;
             localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
             
-            document.getElementById('newPresetName').value = '';
+            // document.getElementById('newPresetName').value = ''; // Keep it filled? or clear. Let's clear.
             renderPresetsList();
             updateHeaderPresets(); // Update header
         }
