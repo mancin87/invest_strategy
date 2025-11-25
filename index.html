@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Стратегии инвестирования</title>
+    <title>Investment Strategies</title>
     
     <!-- Favicon (Dollar Sign) -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%232563eb'/%3E%3Ctext x='16' y='24' font-size='22' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E$%3C/text%3E%3C/svg%3E">
@@ -33,7 +33,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
-        .input-group label { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; display: block; }
+        .input-group label { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem; }
         .input-group input, .input-group select { width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid #d1d5db; transition: all 0.2s; }
         .input-group input:disabled { background-color: #f3f4f6; cursor: not-allowed; opacity: 0.7; }
         .dark .input-group input, .dark .input-group select { background-color: #374151; border-color: #4b5563; color: white; }
@@ -41,14 +41,47 @@
         .card { transition: transform 0.2s; }
         .card:hover { transform: translateY(-2px); }
         
+        /* Tooltip Styles */
+        .tooltip-container { position: relative; display: inline-flex; align-items: center; }
+        .tooltip-icon { color: #9ca3af; cursor: help; transition: color 0.2s; }
+        .tooltip-icon:hover { color: #3b82f6; }
+        .tooltip-text { 
+            visibility: hidden; 
+            width: 200px; 
+            background-color: #1f2937; 
+            color: #fff; 
+            text-align: center; 
+            border-radius: 6px; 
+            padding: 8px; 
+            position: absolute; 
+            z-index: 50; 
+            bottom: 125%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            opacity: 0; 
+            transition: opacity 0.3s; 
+            font-size: 0.75rem;
+            font-weight: normal;
+            pointer-events: none;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #374151;
+        }
+        .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
+        /* Arrow */
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1f2937 transparent transparent transparent;
+        }
+
         /* Toggle Switch */
-        .toggle-checkbox:checked {
-            right: 0;
-            border-color: #2563eb;
-        }
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #2563eb;
-        }
+        .toggle-checkbox:checked { right: 0; border-color: #2563eb; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #2563eb; }
         
         /* Tab Transitions */
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
@@ -57,6 +90,9 @@
 
         /* Modal */
         .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
+        
+        /* Custom placeholder color for header input */
+        #tickerSymbol::placeholder { color: #9ca3af; font-weight: normal; font-size: 0.875rem; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 dark:bg-gray-950 dark:text-gray-100 min-h-screen flex flex-col" onkeydown="handleGlobalKey(event)">
@@ -64,12 +100,19 @@
     <!-- Header -->
     <header class="bg-white dark:bg-gray-900 shadow-md p-4 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl">$</div>
-                <div>
-                    <h1 class="text-xl font-bold leading-tight hidden md:block">Universal Strategy Tool</h1>
-                    <h1 class="text-xl font-bold leading-tight md:hidden">Strategy Tool</h1>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Yield Model & Repair Calculator (v4.6)</p>
+            <div class="flex items-center gap-3 flex-grow">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xl">$</div>
+                <div class="flex flex-col">
+                    <div class="flex items-center flex-wrap gap-2">
+                        <h1 class="text-xl font-bold leading-tight hidden md:block">Universal Strategy Tool</h1>
+                        <h1 class="text-xl font-bold leading-tight md:hidden">Strategy Tool</h1>
+                        
+                        <!-- Ticker Input in Header -->
+                        <input type="text" id="tickerSymbol" value="" placeholder="Enter Ticker" 
+                               class="bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none text-lg font-bold uppercase text-blue-600 dark:text-blue-400 w-32 transition-colors px-1" 
+                               onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Ticker'">
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">v5.2</p>
                 </div>
             </div>
             
@@ -77,7 +120,7 @@
                 <!-- Quick Preset Selector -->
                 <div class="relative hidden md:block">
                     <select id="headerPresetSelect" onchange="loadPresetFromHeader(this.value)" class="appearance-none bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 py-2 pl-3 pr-8 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
-                        <option value="" disabled selected>📂 Загрузить пресет...</option>
+                        <option value="" disabled selected>📂 Load Preset...</option>
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
@@ -87,14 +130,14 @@
                 <!-- Global Run Button -->
                 <button onclick="runActiveCalculation()" class="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition shadow-md">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                    Расчитать (Enter)
+                    Calculate (Enter)
                 </button>
                 <button onclick="runActiveCalculation()" class="md:hidden p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                 </button>
 
                 <!-- Presets Manager Button -->
-                <button onclick="openPresetsModal()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition" title="Управление пресетами">
+                <button onclick="openPresetsModal()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition" title="Manage Presets">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
                 </button>
 
@@ -109,8 +152,8 @@
     <!-- Tab Navigation -->
     <div class="max-w-7xl mx-auto px-4 mt-6">
         <div class="flex space-x-1 bg-gray-200 dark:bg-gray-800 p-1 rounded-lg w-fit">
-            <button onclick="switchTab('simulation')" id="tab-sim" class="px-4 py-2 rounded-md text-sm font-bold bg-white dark:bg-gray-700 shadow-sm transition">📊 Проекция (Simulation)</button>
-            <button onclick="switchTab('averaging')" id="tab-avg" class="px-4 py-2 rounded-md text-sm font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition">🧮 Усреднение (Repair)</button>
+            <button onclick="switchTab('simulation')" id="tab-sim" class="px-4 py-2 rounded-md text-sm font-bold bg-white dark:bg-gray-700 shadow-sm transition">📊 Projection (Simulation)</button>
+            <button onclick="switchTab('averaging')" id="tab-avg" class="px-4 py-2 rounded-md text-sm font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition">🧮 Averaging (Repair)</button>
         </div>
     </div>
 
@@ -120,77 +163,92 @@
         <div id="view-simulation" class="tab-content active grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Controls Panel -->
             <aside class="lg:col-span-3 bg-white dark:bg-gray-900 p-5 rounded-xl shadow-lg h-fit">
-                <h2 class="text-lg font-bold mb-4 border-b pb-2 dark:border-gray-700">Вводные данные</h2>
+                <h2 class="text-lg font-bold mb-4 border-b pb-2 dark:border-gray-700">Strategy Settings</h2>
                 
                 <div class="space-y-4">
-                    <!-- Ticker Input (New) -->
-                    <div class="input-group pb-2 border-b dark:border-gray-800">
-                        <label class="text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider text-xs">Тикер актива</label>
-                        <input type="text" id="tickerSymbol" value="BITO" placeholder="Напр. BITO, BTC" class="font-bold text-xl bg-transparent border-none p-0 focus:ring-0 uppercase" style="border: none; padding-left: 0;">
-                    </div>
-
                     <div class="input-group">
-                        <label>Кол-во акций / Лотов</label>
+                        <label>Number of Shares / Lots</label>
                         <input type="number" id="shares" value="304">
                     </div>
                     <div class="input-group">
-                        <label>Средняя цена входа ($)</label>
+                        <label>Average Entry Price ($)</label>
                         <input type="number" id="avgPrice" value="16.71" step="0.01">
                     </div>
                     <div class="input-group">
-                        <label>Текущая цена актива ($)</label>
+                        <label>Current Asset Price ($)</label>
                         <input type="number" id="currPrice" value="13.95" step="0.01">
                     </div>
+                    
+                    <!-- Tooltip Field -->
                     <div class="input-group">
-                        <label>Стартовый капитал (Кэш) ($)</label>
+                        <label>
+                            Starting Capital (Cash) ($)
+                            <div class="tooltip-container">
+                                <svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div class="tooltip-text">Capital obtained from previous dividends or option premiums.</div>
+                            </div>
+                        </label>
                         <input type="number" id="initialCapital" value="817">
-                        <p class="text-xs text-gray-500 mt-1">Капитал полученный с дивидендов или премий</p>
                     </div>
+
+                    <!-- Tooltip Field -->
                     <div class="input-group">
-                        <label>Ежемесячный взнос ($)</label>
-                        <input type="number" id="monthlyContribution" value="0" placeholder="Долив средств">
-                        <p class="text-xs text-green-600 dark:text-green-400 mt-1">Всегда покупает акции (DCA)</p>
+                        <label>
+                            Monthly Contribution ($)
+                            <div class="tooltip-container">
+                                <svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div class="tooltip-text">Additional funds added monthly. These always buy shares (DCA strategy).</div>
+                            </div>
+                        </label>
+                        <input type="number" id="monthlyContribution" value="0" placeholder="Add funds">
                     </div>
+
                     <hr class="dark:border-gray-700">
                     <div class="input-group">
-                        <label>Див. доходность (% годовых)</label>
+                        <label>Div. Yield (Annual %)</label>
                         <input type="number" id="divYield" value="15.0" step="0.1">
                     </div>
                     <div class="input-group">
-                        <label>Стратегия дивидендов</label>
+                        <label>Dividend Strategy</label>
                         <select id="reinvestMode">
-                            <option value="cash">Накапливать Кэш</option>
-                            <option value="reinvest">Реинвестировать (Compound)</option>
+                            <option value="cash">Accumulate Cash</option>
+                            <option value="reinvest">Reinvest (Compound)</option>
                         </select>
                     </div>
                     <div class="input-group">
-                        <label>Длительность</label>
+                        <label>Duration</label>
                         <select id="duration">
-                            <option value="12">1 Год</option>
-                            <option value="24" selected>2 Года</option>
-                            <option value="36">3 Года</option>
-                            <option value="60">5 Лет</option>
-                            <option value="120">10 Лет</option>
+                            <option value="12">1 Year</option>
+                            <option value="24" selected>2 Years</option>
+                            <option value="36">3 Years</option>
+                            <option value="60">5 Years</option>
+                            <option value="120">10 Years</option>
                         </select>
                     </div>
                     <div class="input-group">
-                        <label>Сценарий рынка</label>
+                        <label>Market Scenario</label>
                         <select id="scenario" onchange="updateGrowthInput()">
-                            <option value="bear">Медвежий (Падение)</option>
-                            <option value="flat" selected>Боковик (Flat)</option>
-                            <option value="bull">Бычий (Рост)</option>
+                            <option value="bear">Bear Market (Drop)</option>
+                            <option value="flat" selected>Sideways (Flat)</option>
+                            <option value="bull">Bull Market (Growth)</option>
                         </select>
                     </div>
 
+                    <!-- Tooltip Field -->
                     <div class="input-group">
-                        <label>Годовой рост/падение цены (%)</label>
+                        <label>
+                            Annual Price Growth (%)
+                            <div class="tooltip-container">
+                                <svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div class="tooltip-text">Expected annual price change. Automatically locked to 0% for Flat scenario.</div>
+                            </div>
+                        </label>
                         <input type="number" id="manualGrowth" value="0" step="0.1" disabled>
-                        <p class="text-xs text-gray-500 mt-1">При боковике заблокировано (0%)</p>
                     </div>
                     
                     <!-- Mobile only calculate button for redundancy -->
                     <button onclick="runSimulation()" class="md:hidden w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-lg mt-2">
-                        Рассчитать
+                        Calculate
                     </button>
                 </div>
             </aside>
@@ -202,28 +260,28 @@
                     
                     <!-- Card 1: Dividends -->
                     <div class="card bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 text-gray-900 dark:text-white p-5 rounded-xl shadow-lg border border-gray-200 dark:border-none border-l-4 !border-l-green-500">
-                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">ДИВИДЕНДЫ</p>
+                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">TOTAL DIVIDENDS</p>
                         <h3 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiTotalDivs">0</h3>
-                        <p class="text-xs mt-1 opacity-70">Получено за период</p>
+                        <p class="text-xs mt-1 opacity-70">Received over period</p>
                     </div>
 
                     <!-- Card 2: Shares -->
                     <div class="card bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 text-gray-900 dark:text-white p-5 rounded-xl shadow-lg border border-gray-200 dark:border-none border-l-4 !border-l-purple-500">
-                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">ВСЕГО АКЦИЙ</p>
+                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">TOTAL SHARES</p>
                         <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-300" id="kpiTotalShares">0</h3>
                         <p class="text-xs mt-1 opacity-70" id="kpiShareDiff">--</p>
                     </div>
 
                     <!-- Card 3: Total Equity -->
                     <div class="card bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 text-gray-900 dark:text-white p-5 rounded-xl shadow-lg border border-gray-200 dark:border-none border-l-4 !border-l-teal-500">
-                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">ИТОГО КАПИТАЛ</p>
+                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">TOTAL EQUITY</p>
                         <h3 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiTotalEquity">0</h3>
-                        <p class="text-xs mt-1 opacity-70">Портфель + Кэш</p>
+                        <p class="text-xs mt-1 opacity-70">Portfolio + Cash</p>
                     </div>
 
                     <!-- Card 4: Final PnL -->
                     <div class="card bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 text-gray-900 dark:text-white p-5 rounded-xl shadow-lg border border-gray-200 dark:border-none border-l-4 !border-l-blue-500">
-                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">ФИНАЛЬНЫЙ PNL</p>
+                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">FINAL PNL</p>
                         <h3 class="text-2xl font-bold" id="kpiPnL">Loading...</h3>
                         <p class="text-xs mt-1 opacity-70" id="kpiPnLPercent">--%</p>
                     </div>
@@ -231,16 +289,16 @@
                 
                 <!-- Breakeven Indicator (Small) -->
                 <div class="bg-white dark:bg-gray-900 p-3 rounded-lg shadow flex justify-between items-center border-l-4 border-teal-500">
-                    <span class="text-sm font-semibold">Точка безубыточности (Equity > Вложения):</span>
-                    <span class="text-lg font-bold" id="kpiBreakeven">Никогда</span>
+                    <span class="text-sm font-semibold">Breakeven Point (Equity > Invested):</span>
+                    <span class="text-lg font-bold" id="kpiBreakeven">Never</span>
                 </div>
 
                 <!-- Chart Section -->
                 <div class="bg-white dark:bg-gray-900 p-4 rounded-xl shadow-lg">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-lg" id="chartTitle">Проекция Equity</h3>
+                        <h3 class="font-bold text-lg" id="chartTitle">Equity Projection</h3>
                         <div class="text-xs flex gap-4">
-                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-500"></span> Вложения</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-500"></span> Invested</span>
                             <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-green-500"></span> Equity</span>
                         </div>
                     </div>
@@ -257,26 +315,26 @@
                         </div>
                         <div class="flex-grow">
                              <div class="flex items-center gap-2">
-                                <label for="enableVolatility" class="font-bold text-sm cursor-pointer select-none">Случайная волатильность</label>
+                                <label for="enableVolatility" class="font-bold text-sm cursor-pointer select-none">Random Volatility</label>
                                 <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
                                     <input type="checkbox" name="toggle" id="enableVolatility" onchange="toggleVolatilityControls(); runSimulation();" class="toggle-checkbox absolute block w-5 h-5 top-0.5 left-0.5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300"/>
                                     <label for="enableVolatility" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                                 </div>
                              </div>
-                             <p class="text-xs text-gray-500">Симулировать рыночный шум</p>
+                             <p class="text-xs text-gray-500">Simulate market noise</p>
                         </div>
                     </div>
 
                     <!-- Range Slider (Conditional) -->
                     <div id="volatilityContainer" class="hidden flex-grow max-w-md w-full transition-all duration-300 pl-0 md:pl-4 border-t md:border-t-0 md:border-l border-gray-100 dark:border-gray-800 pt-3 md:pt-0">
                          <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
-                            <span>Амплитуда колебаний</span>
+                            <span>Volatility Range</span>
                             <span id="volatilityValueText" class="font-bold text-blue-600 dark:text-blue-400">5%</span>
                         </div>
                         <input type="range" id="volatilityRange" min="1" max="20" value="5" oninput="document.getElementById('volatilityValueText').innerText = this.value + '%'; runSimulation();" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
                         <div class="flex justify-between text-[10px] text-gray-400 mt-1">
-                            <span>Спокойно (1%)</span>
-                            <span>Хаос (20%)</span>
+                            <span>Low (1%)</span>
+                            <span>High (20%)</span>
                         </div>
                     </div>
                 </div>
@@ -287,13 +345,13 @@
                         <table class="w-full text-sm text-left">
                             <thead class="bg-gray-100 dark:bg-gray-800 text-xs uppercase font-bold text-gray-600 dark:text-gray-300">
                                 <tr>
-                                    <th class="px-4 py-3">Месяц</th>
-                                    <th class="px-4 py-3">Цена Актива</th>
-                                    <th class="px-4 py-3">Дивиденд</th>
-                                    <th class="px-4 py-3 text-purple-600 dark:text-purple-400">Действие</th>
-                                    <th class="px-4 py-3">Всего Акций</th>
-                                    <th class="px-4 py-3">Остаток Кэша</th>
-                                    <th class="px-4 py-3 text-right">Итого Капитал</th>
+                                    <th class="px-4 py-3">Month</th>
+                                    <th class="px-4 py-3">Asset Price</th>
+                                    <th class="px-4 py-3">Dividend</th>
+                                    <th class="px-4 py-3 text-purple-600 dark:text-purple-400">Action</th>
+                                    <th class="px-4 py-3">Total Shares</th>
+                                    <th class="px-4 py-3">Cash Balance</th>
+                                    <th class="px-4 py-3 text-right">Total Equity</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -309,39 +367,45 @@
         <div id="view-averaging" class="tab-content grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Inputs -->
             <aside class="lg:col-span-4 bg-white dark:bg-gray-900 p-5 rounded-xl shadow-lg h-fit">
-                <h2 class="text-lg font-bold mb-4 border-b pb-2 dark:border-gray-700">Параметры Маневра</h2>
+                <h2 class="text-lg font-bold mb-4 border-b pb-2 dark:border-gray-700">Maneuver Parameters</h2>
                 
-                <h3 class="text-sm font-bold text-blue-500 mb-2 uppercase tracking-wide">1. Текущая позиция</h3>
+                <h3 class="text-sm font-bold text-blue-500 mb-2 uppercase tracking-wide">1. Current Position</h3>
                 <div class="space-y-3 mb-6">
                     <div class="input-group">
-                        <label>Всего Акций в портфеле</label>
+                        <label>Total Shares in Portfolio</label>
                         <input type="number" id="avg_shares" value="304" oninput="calculateAveraging()">
                     </div>
                     <div class="input-group">
-                        <label>Средняя цена покупки ($)</label>
+                        <label>Avg Purchase Price ($)</label>
                         <input type="number" id="avg_entryPrice" value="16.71" step="0.01" oninput="calculateAveraging()">
                     </div>
                     <div class="input-group">
-                        <label>Текущая рыночная цена ($)</label>
+                        <label>Current Market Price ($)</label>
                         <input type="number" id="avg_marketPrice" value="13.95" step="0.01" oninput="calculateAveraging()">
                     </div>
                 </div>
 
-                <h3 class="text-sm font-bold text-orange-500 mb-2 uppercase tracking-wide">2. Действия (Repair)</h3>
+                <h3 class="text-sm font-bold text-orange-500 mb-2 uppercase tracking-wide">2. Actions (Repair)</h3>
                 <div class="space-y-3">
                     <div class="input-group">
-                        <label>Продать акций (Wash Sale) 📉</label>
+                        <label>Sell Shares (Wash Sale) 📉</label>
                         <input type="number" id="avg_sellCount" value="0" placeholder="0" class="border-red-300 dark:border-red-900 focus:border-red-500" oninput="calculateAveraging()">
-                        <p class="text-xs text-gray-500 mt-1">Фиксация убытка для налогов / освобождение кэша</p>
+                        <p class="text-xs text-gray-500 mt-1">Realize loss for taxes / free up cash</p>
                     </div>
                     <div class="input-group">
-                        <label>Докупить акций 📈</label>
+                        <label>Buy Shares 📈</label>
                         <input type="number" id="avg_buyCount" value="0" placeholder="0" class="border-green-300 dark:border-green-900 focus:border-green-500" oninput="calculateAveraging()">
                     </div>
+                    <!-- Tooltip Field -->
                     <div class="input-group">
-                        <label>Цена докупки ($)</label>
+                        <label>
+                            Buy Price ($)
+                            <div class="tooltip-container">
+                                <svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div class="tooltip-text">Usually market price, but can be edited if setting a limit order.</div>
+                            </div>
+                        </label>
                         <input type="number" id="avg_buyPrice" value="13.95" step="0.01" oninput="calculateAveraging()">
-                        <p class="text-xs text-gray-500 mt-1">Обычно равна рыночной, но можно менять</p>
                     </div>
                 </div>
             </aside>
@@ -352,18 +416,18 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Before -->
                     <div class="card bg-gray-50 dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-                        <h3 class="text-gray-500 dark:text-gray-400 font-bold uppercase text-xs mb-4">До маневра</h3>
+                        <h3 class="text-gray-500 dark:text-gray-400 font-bold uppercase text-xs mb-4">Before Maneuver</h3>
                         <div class="space-y-2">
                             <div class="flex justify-between">
-                                <span>Средняя цена:</span>
+                                <span>Avg Price:</span>
                                 <span class="font-mono font-bold text-lg" id="res_oldAvg">$0.00</span>
                             </div>
                             <div class="flex justify-between">
-                                <span>Вложено:</span>
+                                <span>Invested:</span>
                                 <span class="font-mono" id="res_oldInvested">$0.00</span>
                             </div>
                             <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
-                                <span>Нереализованный PnL:</span>
+                                <span>Unrealized PnL:</span>
                                 <span class="font-mono font-bold text-red-500" id="res_oldPnL">$0.00</span>
                             </div>
                         </div>
@@ -371,23 +435,23 @@
 
                     <!-- After -->
                     <div class="card bg-white dark:bg-gray-900 p-5 rounded-xl border-2 border-blue-500 shadow-lg relative overflow-hidden">
-                        <div class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 font-bold rounded-bl-lg">РЕЗУЛЬТАТ</div>
-                        <h3 class="text-blue-600 dark:text-blue-400 font-bold uppercase text-xs mb-4">После маневра</h3>
+                        <div class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 font-bold rounded-bl-lg">RESULT</div>
+                        <h3 class="text-blue-600 dark:text-blue-400 font-bold uppercase text-xs mb-4">After Maneuver</h3>
                         <div class="space-y-2">
                             <div class="flex justify-between items-center">
-                                <span>Новая Средняя:</span>
+                                <span>New Average:</span>
                                 <span class="font-mono font-bold text-3xl text-green-500" id="res_newAvg">$0.00</span>
                             </div>
                             <div class="flex justify-between">
-                                <span>Новое кол-во акций:</span>
+                                <span>New Share Count:</span>
                                 <span class="font-mono font-bold" id="res_newShares">0</span>
                             </div>
                              <div class="flex justify-between">
-                                <span>Новая сумма вложений:</span>
+                                <span>New Invested Amount:</span>
                                 <span class="font-mono" id="res_newInvested">$0.00</span>
                             </div>
                              <div class="flex justify-between border-t border-gray-100 dark:border-gray-800 pt-2 mt-2">
-                                <span>Остаток Нереализ. PnL:</span>
+                                <span>Remaining Unrealized PnL:</span>
                                 <span class="font-mono font-bold text-red-500" id="res_remainingPnL">$0.00</span>
                             </div>
                         </div>
@@ -396,20 +460,20 @@
 
                 <!-- Impact Analysis -->
                 <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-lg">
-                    <h3 class="font-bold text-lg mb-4">Анализ последствий</h3>
+                    <h3 class="font-bold text-lg mb-4">Impact Analysis</h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                         <div class="p-4 rounded-lg bg-red-50 dark:bg-red-900/20">
-                            <p class="text-xs text-red-600 dark:text-red-400 uppercase font-bold mb-1">Реализ. Убыток</p>
+                            <p class="text-xs text-red-600 dark:text-red-400 uppercase font-bold mb-1">Realized Loss</p>
                             <p class="text-xl font-bold text-red-600 dark:text-red-400" id="res_realizedPnL">$0.00</p>
                         </div>
                         <div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
-                            <p class="text-xs text-blue-600 dark:text-blue-400 uppercase font-bold mb-1">Освободилось Кэша</p>
+                            <p class="text-xs text-blue-600 dark:text-blue-400 uppercase font-bold mb-1">Cash Released</p>
                             <p class="text-xl font-bold text-blue-600 dark:text-blue-400" id="res_cashReleased">$0.00</p>
-                            <p class="text-[10px] opacity-70">От продажи</p>
+                            <p class="text-[10px] opacity-70">From selling</p>
                         </div>
                         <div class="p-4 rounded-lg bg-green-50 dark:bg-green-900/20">
-                            <p class="text-xs text-green-600 dark:text-green-400 uppercase font-bold mb-1">Снижение средней</p>
+                            <p class="text-xs text-green-600 dark:text-green-400 uppercase font-bold mb-1">Avg Price Reduction</p>
                             <p class="text-xl font-bold text-green-600 dark:text-green-400" id="res_improvement">0.00%</p>
                         </div>
                     </div>
@@ -424,31 +488,31 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
                 
-                <h2 class="text-xl font-bold mb-4">Управление пресетами</h2>
+                <h2 class="text-xl font-bold mb-4">Preset Manager</h2>
                 
                 <!-- Save New -->
                 <div class="flex gap-2 mb-4">
-                    <input type="text" id="newPresetName" placeholder="Название пресета" class="flex-grow p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 text-sm">
-                    <button onclick="savePreset()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-bold">Сохранить</button>
+                    <input type="text" id="newPresetName" placeholder="Preset Name" class="flex-grow p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 text-sm">
+                    <button onclick="savePreset()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-bold">Save</button>
                 </div>
 
                 <!-- Search -->
                 <div class="mb-4 relative">
-                    <input type="text" id="presetSearch" oninput="renderPresetsList()" placeholder="Поиск пресета..." class="w-full p-2 pl-8 border rounded-lg dark:bg-gray-800 dark:border-gray-600 text-sm">
+                    <input type="text" id="presetSearch" oninput="renderPresetsList()" placeholder="Search presets..." class="w-full p-2 pl-8 border rounded-lg dark:bg-gray-800 dark:border-gray-600 text-sm">
                     <svg class="w-4 h-4 absolute left-2.5 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
 
                 <!-- List -->
-                <h3 class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Сохраненные</h3>
+                <h3 class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Saved</h3>
                 <div id="presetsList" class="space-y-2 max-h-48 overflow-y-auto mb-6">
-                    <p class="text-sm text-gray-400 italic text-center py-2">Нет сохраненных пресетов</p>
+                    <p class="text-sm text-gray-400 italic text-center py-2">No saved presets</p>
                 </div>
 
                 <!-- Import/Export -->
                 <div class="border-t dark:border-gray-700 pt-4 flex gap-2">
-                    <button onclick="exportPresets()" class="flex-1 bg-gray-100 dark:bg-gray-800 text-sm font-semibold py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">Экспорт в файл</button>
+                    <button onclick="exportPresets()" class="flex-1 bg-gray-100 dark:bg-gray-800 text-sm font-semibold py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">Export to file</button>
                     <label class="flex-1 bg-gray-100 dark:bg-gray-800 text-sm font-semibold py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-center cursor-pointer">
-                        Импорт из файла
+                        Import from file
                         <input type="file" id="importFile" accept=".json" onchange="importPresets(this)" class="hidden">
                     </label>
                 </div>
@@ -463,7 +527,7 @@
         
         // --- PERSISTENCE LAYER ---
         const PERSISTENT_IDS = [
-            'tickerSymbol', // Added
+            'tickerSymbol', 
             'shares', 'avgPrice', 'currPrice', 'initialCapital', 'monthlyContribution',
             'divYield', 'reinvestMode', 'duration', 'scenario', 'manualGrowth',
             'avg_shares', 'avg_entryPrice', 'avg_marketPrice', 
@@ -550,7 +614,7 @@
             const names = Object.keys(presets);
             
             // Keep first option
-            selector.innerHTML = '<option value="" disabled selected>📂 Загрузить пресет...</option>';
+            selector.innerHTML = '<option value="" disabled selected>📂 Load Preset...</option>';
             
             names.forEach(name => {
                 const option = document.createElement('option');
@@ -568,7 +632,7 @@
 
         function savePreset() {
             const name = document.getElementById('newPresetName').value.trim();
-            if (!name) return alert('Введите название!');
+            if (!name) return alert('Enter a name!');
 
             const currentData = {};
             PERSISTENT_IDS.forEach(id => {
@@ -621,7 +685,7 @@
         }
 
         function deletePreset(name) {
-            if(!confirm(`Удалить "${name}"?`)) return;
+            if(!confirm(`Delete "${name}"?`)) return;
             const presets = getPresets();
             delete presets[name];
             localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
@@ -636,7 +700,7 @@
             const names = Object.keys(presets).filter(name => name.toLowerCase().includes(searchTerm));
 
             if (names.length === 0) {
-                list.innerHTML = '<p class="text-sm text-gray-400 italic text-center py-2">Нет сохраненных пресетов</p>';
+                list.innerHTML = '<p class="text-sm text-gray-400 italic text-center py-2">No saved presets</p>';
                 return;
             }
 
@@ -647,7 +711,7 @@
                 div.innerHTML = `
                     <span class="font-medium text-sm truncate flex-grow">${name}</span>
                     <div class="flex gap-2">
-                        <button onclick="loadPreset('${name}')" class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 dark:bg-green-900 dark:text-green-300">Загр.</button>
+                        <button onclick="loadPreset('${name}')" class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 dark:bg-green-900 dark:text-green-300">Load</button>
                         <button onclick="deletePreset('${name}')" class="text-gray-400 hover:text-red-500 px-1">✕</button>
                     </div>
                 `;
@@ -658,9 +722,26 @@
         function exportPresets() {
             const presets = getPresets();
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(presets));
+            
+            // Dynamic Name for Export
+            const ticker = document.getElementById('tickerSymbol').value.trim().toUpperCase() || 'ASSET';
+            const durationEl = document.getElementById('duration');
+            const durationText = durationEl.options[durationEl.selectedIndex].text.replace(/ /g, '_');
+            
+            const now = new Date();
+            // yy-mm-dd
+            const year = now.getFullYear().toString().slice(-2);
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            // HH-mm
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            const filename = `${ticker}_${durationText}_${year}-${month}-${day}_${hours}-${minutes}.json`.replace(/ /g, '_');
+
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "strategy_backup.json");
+            downloadAnchorNode.setAttribute("download", filename);
             document.body.appendChild(downloadAnchorNode); // required for firefox
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
@@ -679,9 +760,9 @@
                     localStorage.setItem(PRESETS_KEY, JSON.stringify(merged));
                     renderPresetsList();
                     updateHeaderPresets(); // Update header
-                    alert('Пресеты успешно импортированы!');
+                    alert('Presets imported successfully!');
                 } catch (err) {
-                    alert('Ошибка чтения файла');
+                    alert('Error reading file');
                 }
             };
             reader.readAsText(file);
@@ -806,7 +887,7 @@
             if(scenario === 'flat') annualGrowthPct = 0; 
 
             // Update title
-            document.getElementById('chartTitle').innerText = `Проекция Equity (${durationMonths} мес.)`;
+            document.getElementById('chartTitle').innerText = `Equity Projection (${durationMonths} mon.)`;
 
             // Simulation Variables
             let currentPrice = startPrice;
@@ -929,9 +1010,9 @@
             // Extra info for Shares card (Diff from start)
             const shareDiff = currentShares - initialShares;
             const shareDiffSign = shareDiff >= 0 ? '+' : '';
-            document.getElementById('kpiShareDiff').innerText = `${shareDiffSign}${fmtNum(shareDiff)} за период`;
+            document.getElementById('kpiShareDiff').innerText = `${shareDiffSign}${fmtNum(shareDiff)} over period`;
 
-            document.getElementById('kpiBreakeven').innerText = breakEvenMonth ? `Месяц ${breakEvenMonth}` : "Не достигнута";
+            document.getElementById('kpiBreakeven').innerText = breakEvenMonth ? `Month ${breakEvenMonth}` : "Never";
             if(breakEvenMonth) document.getElementById('kpiBreakeven').className = "text-lg font-bold text-green-600 dark:text-green-400";
             else document.getElementById('kpiBreakeven').className = "text-lg font-bold text-gray-400";
 
@@ -1012,7 +1093,7 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Total Equity (Актив + Кэш)',
+                            label: 'Total Equity (Asset + Cash)',
                             data: equityData,
                             borderColor: '#10b981', // Emerald 500
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -1022,7 +1103,7 @@
                             pointRadius: duration > 60 ? 0 : 2
                         },
                         {
-                            label: 'Всего Вложено (Свои средства)',
+                            label: 'Total Invested (Out of Pocket)',
                             data: investmentData,
                             borderColor: '#ef4444', // Red 500
                             borderWidth: 2,
