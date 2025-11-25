@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investment Strategies</title>
     
-    <!-- Favicon (Dollar Sign) -->
+    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%232563eb'/%3E%3Ctext x='16' y='24' font-size='22' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E$%3C/text%3E%3C/svg%3E">
 
     <!-- Tailwind CSS -->
@@ -34,9 +34,9 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
         .input-group label { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem; }
-        .input-group input, .input-group select { width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid #d1d5db; transition: all 0.2s; }
+        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid #d1d5db; transition: all 0.2s; }
         .input-group input:disabled { background-color: #f3f4f6; cursor: not-allowed; opacity: 0.7; }
-        .dark .input-group input, .dark .input-group select { background-color: #374151; border-color: #4b5563; color: white; }
+        .dark .input-group input, .dark .input-group select, .dark .input-group textarea { background-color: #374151; border-color: #4b5563; color: white; }
         .dark .input-group input:disabled { background-color: #1f2937; border-color: #374151; }
         .card { transition: transform 0.2s; }
         .card:hover { transform: translateY(-2px); }
@@ -46,37 +46,15 @@
         .tooltip-icon { color: #9ca3af; cursor: help; transition: color 0.2s; }
         .tooltip-icon:hover { color: #3b82f6; }
         .tooltip-text { 
-            visibility: hidden; 
-            width: 200px; 
-            background-color: #1f2937; 
-            color: #fff; 
-            text-align: center; 
-            border-radius: 6px; 
-            padding: 8px; 
-            position: absolute; 
-            z-index: 50; 
-            bottom: 125%; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            opacity: 0; 
-            transition: opacity 0.3s; 
-            font-size: 0.75rem;
-            font-weight: normal;
-            pointer-events: none;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            border: 1px solid #374151;
+            visibility: hidden; width: 200px; background-color: #1f2937; color: #fff; text-align: center; 
+            border-radius: 6px; padding: 8px; position: absolute; z-index: 50; bottom: 125%; left: 50%; 
+            transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; font-size: 0.75rem; font-weight: normal; 
+            pointer-events: none; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border: 1px solid #374151;
         }
         .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
-        /* Arrow */
         .tooltip-text::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #1f2937 transparent transparent transparent;
+            content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px;
+            border-style: solid; border-color: #1f2937 transparent transparent transparent;
         }
 
         /* Toggle Switch */
@@ -91,8 +69,18 @@
         /* Modal */
         .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
         
-        /* Custom placeholder color for header input */
         #tickerSymbol::placeholder { color: #9ca3af; font-weight: normal; font-size: 0.875rem; }
+        
+        /* Loader */
+        .spinner { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #3b82f6; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Sortable Header */
+        .sortable-header { cursor: pointer; user-select: none; transition: color 0.2s; }
+        .sortable-header:hover { color: #3b82f6; }
+        .sort-icon { display: inline-block; width: 0; height: 0; margin-left: 5px; vertical-align: middle; border-left: 4px solid transparent; border-right: 4px solid transparent; }
+        .sort-asc { border-bottom: 4px solid currentColor; }
+        .sort-desc { border-top: 4px solid currentColor; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 dark:bg-gray-950 dark:text-gray-100 min-h-screen flex flex-col" onkeydown="handleGlobalKey(event)">
@@ -106,18 +94,15 @@
                     <div class="flex items-center flex-wrap gap-2">
                         <h1 class="text-xl font-bold leading-tight hidden md:block">Universal Strategy Tool</h1>
                         <h1 class="text-xl font-bold leading-tight md:hidden">Strategy Tool</h1>
-                        
-                        <!-- Ticker Input in Header -->
                         <input type="text" id="tickerSymbol" value="" placeholder="Enter Ticker" 
                                class="bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 outline-none text-lg font-bold uppercase text-blue-600 dark:text-blue-400 w-32 transition-colors px-1" 
                                onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Ticker'">
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">v5.4</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">v7.2 (Fixes)</p>
                 </div>
             </div>
             
             <div class="flex items-center gap-2 md:gap-3">
-                <!-- Quick Preset Selector -->
                 <div class="relative hidden md:block">
                     <select id="headerPresetSelect" onchange="loadPresetFromHeader(this.value)" class="appearance-none bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 py-2 pl-3 pr-8 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
                         <option value="" disabled selected>📂 Load Preset...</option>
@@ -127,7 +112,6 @@
                     </div>
                 </div>
 
-                <!-- Global Run Button -->
                 <button onclick="runActiveCalculation()" class="hidden md:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition shadow-md">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                     Calculate (Enter)
@@ -136,7 +120,6 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                 </button>
 
-                <!-- Presets Manager Button -->
                 <button onclick="openPresetsModal()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition" title="Manage Presets">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
                 </button>
@@ -151,9 +134,10 @@
 
     <!-- Tab Navigation -->
     <div class="max-w-7xl mx-auto px-4 mt-6">
-        <div class="flex space-x-1 bg-gray-200 dark:bg-gray-800 p-1 rounded-lg w-fit">
-            <button onclick="switchTab('simulation')" id="tab-sim" class="px-4 py-2 rounded-md text-sm font-bold bg-white dark:bg-gray-700 shadow-sm transition">📊 Projection (Simulation)</button>
-            <button onclick="switchTab('averaging')" id="tab-avg" class="px-4 py-2 rounded-md text-sm font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition">🧮 Averaging (Repair)</button>
+        <div class="flex space-x-1 bg-gray-200 dark:bg-gray-800 p-1 rounded-lg w-fit overflow-x-auto">
+            <button onclick="switchTab('simulation')" id="tab-sim" class="px-4 py-2 rounded-md text-sm font-bold bg-white dark:bg-gray-700 shadow-sm transition whitespace-nowrap">📊 Projection</button>
+            <button onclick="switchTab('averaging')" id="tab-avg" class="px-4 py-2 rounded-md text-sm font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition whitespace-nowrap">🧮 Repair</button>
+            <button onclick="switchTab('portfolio')" id="tab-port" class="px-4 py-2 rounded-md text-sm font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition whitespace-nowrap">📁 Portfolio Lab</button>
         </div>
     </div>
 
@@ -164,206 +148,64 @@
             <!-- Controls Panel -->
             <aside class="lg:col-span-3 bg-white dark:bg-gray-900 p-5 rounded-xl shadow-lg h-fit">
                 <h2 class="text-lg font-bold mb-4 border-b pb-2 dark:border-gray-700">Strategy Settings</h2>
-                
                 <div class="space-y-4">
+                    <div class="input-group"><label>Number of Shares / Lots</label><input type="number" id="shares" value="304"></div>
+                    <div class="input-group"><label>Average Entry Price ($)</label><input type="number" id="avgPrice" value="16.71" step="0.01"></div>
+                    <div class="input-group"><label>Current Asset Price ($)</label><input type="number" id="currPrice" value="13.95" step="0.01"></div>
                     <div class="input-group">
-                        <label>Number of Shares / Lots</label>
-                        <input type="number" id="shares" value="304">
-                    </div>
-                    <div class="input-group">
-                        <label>Average Entry Price ($)</label>
-                        <input type="number" id="avgPrice" value="16.71" step="0.01">
-                    </div>
-                    <div class="input-group">
-                        <label>Current Asset Price ($)</label>
-                        <input type="number" id="currPrice" value="13.95" step="0.01">
-                    </div>
-                    
-                    <!-- Tooltip Field -->
-                    <div class="input-group">
-                        <label>
-                            Starting Capital (Cash) ($)
-                            <div class="tooltip-container">
-                                <svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <div class="tooltip-text">Capital obtained from previous dividends or option premiums.</div>
-                            </div>
-                        </label>
+                        <label>Starting Capital (Cash) ($) <div class="tooltip-container"><svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><div class="tooltip-text">Capital obtained from previous dividends or option premiums.</div></div></label>
                         <input type="number" id="initialCapital" value="817">
                     </div>
-
-                    <!-- Tooltip Field -->
                     <div class="input-group">
-                        <label>
-                            Monthly Contribution ($)
-                            <div class="tooltip-container">
-                                <svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <div class="tooltip-text">Additional funds added monthly. These always buy shares (DCA strategy).</div>
-                            </div>
-                        </label>
+                        <label>Monthly Contribution ($) <div class="tooltip-container"><svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><div class="tooltip-text">Additional funds added monthly. These always buy shares (DCA strategy).</div></div></label>
                         <input type="number" id="monthlyContribution" value="0" placeholder="Add funds">
                     </div>
-
                     <hr class="dark:border-gray-700">
+                    <div class="input-group"><label>Div. Yield (Annual %)</label><input type="number" id="divYield" value="15.0" step="0.1"></div>
+                    <div class="input-group"><label>Dividend Strategy</label><select id="reinvestMode"><option value="cash">Accumulate Cash</option><option value="reinvest">Reinvest (Compound)</option></select></div>
+                    <div class="input-group"><label>Duration</label><select id="duration"><option value="12">1 Year</option><option value="24" selected>2 Years</option><option value="36">3 Years</option><option value="60">5 Years</option><option value="120">10 Years</option></select></div>
+                    <div class="input-group"><label>Market Scenario</label><select id="scenario" onchange="updateGrowthInput()"><option value="bear">Bear Market (Drop)</option><option value="flat" selected>Sideways (Flat)</option><option value="bull">Bull Market (Growth)</option></select></div>
                     <div class="input-group">
-                        <label>Div. Yield (Annual %)</label>
-                        <input type="number" id="divYield" value="15.0" step="0.1">
-                    </div>
-                    <div class="input-group">
-                        <label>Dividend Strategy</label>
-                        <select id="reinvestMode">
-                            <option value="cash">Accumulate Cash</option>
-                            <option value="reinvest">Reinvest (Compound)</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Duration</label>
-                        <select id="duration">
-                            <option value="12">1 Year</option>
-                            <option value="24" selected>2 Years</option>
-                            <option value="36">3 Years</option>
-                            <option value="60">5 Years</option>
-                            <option value="120">10 Years</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Market Scenario</label>
-                        <select id="scenario" onchange="updateGrowthInput()">
-                            <option value="bear">Bear Market (Drop)</option>
-                            <option value="flat" selected>Sideways (Flat)</option>
-                            <option value="bull">Bull Market (Growth)</option>
-                        </select>
-                    </div>
-
-                    <!-- Tooltip Field -->
-                    <div class="input-group">
-                        <label>
-                            Annual Price Growth (%)
-                            <div class="tooltip-container">
-                                <svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <div class="tooltip-text">Expected annual price change. Automatically locked to 0% for Flat scenario.</div>
-                            </div>
-                        </label>
+                        <label>Annual Price Growth (%) <div class="tooltip-container"><svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><div class="tooltip-text">Expected annual price change. Automatically locked to 0% for Flat scenario.</div></div></label>
                         <input type="number" id="manualGrowth" value="0" step="0.1" disabled>
                     </div>
-                    
-                    <!-- Action Buttons -->
                     <div class="flex gap-2 mt-4">
-                        <!-- Mobile only calculate button -->
-                        <button onclick="runSimulation()" class="md:hidden flex-grow bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-lg">
-                            Calculate
-                        </button>
-                        <!-- Clear Fields Button -->
-                        <button onclick="clearFields()" class="w-full md:w-auto flex-grow bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-lg transition shadow-sm">
-                            Clear Fields
-                        </button>
+                        <button onclick="runSimulation()" class="md:hidden flex-grow bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-lg">Calculate</button>
+                        <button onclick="clearFields()" class="w-full md:w-auto flex-grow bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-lg transition shadow-sm">Clear Fields</button>
                     </div>
                 </div>
             </aside>
 
-            <!-- Main Content -->
+            <!-- Main Content Sim -->
             <div class="lg:col-span-9 space-y-6">
-                <!-- KPI Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    
-                    <!-- Card 1: Dividends -->
                     <div class="card bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 text-gray-900 dark:text-white p-5 rounded-xl shadow-lg border border-gray-200 dark:border-none border-l-4 !border-l-green-500">
-                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">TOTAL DIVIDENDS</p>
-                        <h3 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiTotalDivs">0</h3>
-                        <p class="text-xs mt-1 opacity-70">Received over period</p>
+                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">TOTAL DIVIDENDS</p><h3 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiTotalDivs">0</h3><p class="text-xs mt-1 opacity-70">Received over period</p>
                     </div>
-
-                    <!-- Card 2: Shares -->
                     <div class="card bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 text-gray-900 dark:text-white p-5 rounded-xl shadow-lg border border-gray-200 dark:border-none border-l-4 !border-l-purple-500">
-                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">TOTAL SHARES</p>
-                        <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-300" id="kpiTotalShares">0</h3>
-                        <p class="text-xs mt-1 opacity-70" id="kpiShareDiff">--</p>
+                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">TOTAL SHARES</p><h3 class="text-2xl font-bold text-purple-600 dark:text-purple-300" id="kpiTotalShares">0</h3><p class="text-xs mt-1 opacity-70" id="kpiShareDiff">--</p>
                     </div>
-
-                    <!-- Card 3: Total Equity -->
                     <div class="card bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 text-gray-900 dark:text-white p-5 rounded-xl shadow-lg border border-gray-200 dark:border-none border-l-4 !border-l-teal-500">
-                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">TOTAL EQUITY</p>
-                        <h3 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiTotalEquity">0</h3>
-                        <p class="text-xs mt-1 opacity-70">Portfolio + Cash</p>
+                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">TOTAL EQUITY</p><h3 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiTotalEquity">0</h3><p class="text-xs mt-1 opacity-70">Portfolio + Cash</p>
                     </div>
-
-                    <!-- Card 4: Final PnL -->
                     <div class="card bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 text-gray-900 dark:text-white p-5 rounded-xl shadow-lg border border-gray-200 dark:border-none border-l-4 !border-l-blue-500">
-                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">FINAL PNL</p>
-                        <h3 class="text-2xl font-bold" id="kpiPnL">Loading...</h3>
-                        <p class="text-xs mt-1 opacity-70" id="kpiPnLPercent">--%</p>
+                        <p class="text-xs opacity-70 uppercase tracking-wide font-semibold">FINAL PNL</p><h3 class="text-2xl font-bold" id="kpiPnL">Loading...</h3><p class="text-xs mt-1 opacity-70" id="kpiPnLPercent">--%</p>
                     </div>
                 </div>
-                
-                <!-- Breakeven Indicator (Small) -->
-                <div class="bg-white dark:bg-gray-900 p-3 rounded-lg shadow flex justify-between items-center border-l-4 border-teal-500">
-                    <span class="text-sm font-semibold">Breakeven Point (Equity > Invested):</span>
-                    <span class="text-lg font-bold" id="kpiBreakeven">Never</span>
-                </div>
-
-                <!-- Chart Section -->
+                <div class="bg-white dark:bg-gray-900 p-3 rounded-lg shadow flex justify-between items-center border-l-4 border-teal-500"><span class="text-sm font-semibold">Breakeven Point (Equity > Invested):</span><span class="text-lg font-bold" id="kpiBreakeven">Never</span></div>
                 <div class="bg-white dark:bg-gray-900 p-4 rounded-xl shadow-lg">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-lg" id="chartTitle">Equity Projection</h3>
-                        <div class="text-xs flex gap-4">
-                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-500"></span> Invested</span>
-                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-green-500"></span> Equity</span>
-                        </div>
-                    </div>
-                    <div class="relative h-72 w-full">
-                        <canvas id="strategyChart"></canvas>
-                    </div>
+                    <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg" id="chartTitle">Equity Projection</h3><div class="text-xs flex gap-4"><span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-500"></span> Invested</span><span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-green-500"></span> Equity</span></div></div>
+                    <div class="relative h-72 w-full"><canvas id="strategyChart"></canvas></div>
                 </div>
-
-                <!-- Volatility Controls -->
                 <div class="bg-white dark:bg-gray-900 p-4 rounded-xl shadow-lg flex flex-col md:flex-row items-center justify-between gap-4 transition-all border border-gray-100 dark:border-gray-800">
-                    <div class="flex items-center gap-4 w-full md:w-auto">
-                        <div class="p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                        </div>
-                        <div class="flex-grow">
-                             <div class="flex items-center gap-2">
-                                <label for="enableVolatility" class="font-bold text-sm cursor-pointer select-none">Random Volatility</label>
-                                <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
-                                    <input type="checkbox" name="toggle" id="enableVolatility" onchange="toggleVolatilityControls(); runSimulation();" class="toggle-checkbox absolute block w-5 h-5 top-0.5 left-0.5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300"/>
-                                    <label for="enableVolatility" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-                                </div>
-                             </div>
-                             <p class="text-xs text-gray-500">Simulate market noise</p>
-                        </div>
-                    </div>
-
-                    <!-- Range Slider (Conditional) -->
-                    <div id="volatilityContainer" class="hidden flex-grow max-w-md w-full transition-all duration-300 pl-0 md:pl-4 border-t md:border-t-0 md:border-l border-gray-100 dark:border-gray-800 pt-3 md:pt-0">
-                         <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
-                            <span>Volatility Range</span>
-                            <span id="volatilityValueText" class="font-bold text-blue-600 dark:text-blue-400">5%</span>
-                        </div>
-                        <input type="range" id="volatilityRange" min="1" max="20" value="5" oninput="document.getElementById('volatilityValueText').innerText = this.value + '%'; runSimulation();" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                        <div class="flex justify-between text-[10px] text-gray-400 mt-1">
-                            <span>Low (1%)</span>
-                            <span>High (20%)</span>
-                        </div>
-                    </div>
+                    <div class="flex items-center gap-4 w-full md:w-auto"><div class="p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div><div class="flex-grow"><div class="flex items-center gap-2"><label for="enableVolatility" class="font-bold text-sm cursor-pointer select-none">Random Volatility</label><div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in"><input type="checkbox" name="toggle" id="enableVolatility" onchange="toggleVolatilityControls(); runSimulation();" class="toggle-checkbox absolute block w-5 h-5 top-0.5 left-0.5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300"/><label for="enableVolatility" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label></div></div><p class="text-xs text-gray-500">Simulate market noise</p></div></div>
+                    <div id="volatilityContainer" class="hidden flex-grow max-w-md w-full transition-all duration-300 pl-0 md:pl-4 border-t md:border-t-0 md:border-l border-gray-100 dark:border-gray-800 pt-3 md:pt-0"><div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-2"><span>Volatility Range</span><span id="volatilityValueText" class="font-bold text-blue-600 dark:text-blue-400">5%</span></div><input type="range" id="volatilityRange" min="1" max="20" value="5" oninput="document.getElementById('volatilityValueText').innerText = this.value + '%'; runSimulation();" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"><div class="flex justify-between text-[10px] text-gray-400 mt-1"><span>Low (1%)</span><span>High (20%)</span></div></div>
                 </div>
-
-                <!-- Data Table -->
                 <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm text-left">
-                            <thead class="bg-gray-100 dark:bg-gray-800 text-xs uppercase font-bold text-gray-600 dark:text-gray-300">
-                                <tr>
-                                    <th class="px-4 py-3">Month</th>
-                                    <th class="px-4 py-3">Asset Price</th>
-                                    <th class="px-4 py-3">Dividend</th>
-                                    <th class="px-4 py-3 text-purple-600 dark:text-purple-400">Action</th>
-                                    <th class="px-4 py-3">Total Shares</th>
-                                    <th class="px-4 py-3">Cash Balance</th>
-                                    <th class="px-4 py-3 text-right">Total Equity</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
-                                <!-- Rows generated by JS -->
-                            </tbody>
+                            <thead class="bg-gray-100 dark:bg-gray-800 text-xs uppercase font-bold text-gray-600 dark:text-gray-300"><tr><th class="px-4 py-3">Month</th><th class="px-4 py-3">Asset Price</th><th class="px-4 py-3">Dividend</th><th class="px-4 py-3 text-purple-600 dark:text-purple-400">Action</th><th class="px-4 py-3">Total Shares</th><th class="px-4 py-3">Cash Balance</th><th class="px-4 py-3 text-right">Total Equity</th></tr></thead>
+                            <tbody id="tableBody" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
                         </table>
                     </div>
                 </div>
@@ -372,121 +214,133 @@
 
         <!-- ======================= AVERAGING VIEW ======================= -->
         <div id="view-averaging" class="tab-content grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Inputs -->
-            <aside class="lg:col-span-4 bg-white dark:bg-gray-900 p-5 rounded-xl shadow-lg h-fit">
+             <!-- Inputs -->
+             <aside class="lg:col-span-4 bg-white dark:bg-gray-900 p-5 rounded-xl shadow-lg h-fit">
                 <h2 class="text-lg font-bold mb-4 border-b pb-2 dark:border-gray-700">Maneuver Parameters</h2>
-                
                 <h3 class="text-sm font-bold text-blue-500 mb-2 uppercase tracking-wide">1. Current Position</h3>
                 <div class="space-y-3 mb-6">
-                    <div class="input-group">
-                        <label>Total Shares in Portfolio</label>
-                        <input type="number" id="avg_shares" value="304" oninput="calculateAveraging()">
+                    <div class="input-group"><label>Total Shares in Portfolio</label><input type="number" id="avg_shares" value="304" oninput="calculateAveraging()"></div>
+                    <div class="input-group"><label>Avg Purchase Price ($)</label><input type="number" id="avg_entryPrice" value="16.71" step="0.01" oninput="calculateAveraging()"></div>
+                    <div class="input-group"><label>Current Market Price ($)</label><input type="number" id="avg_marketPrice" value="13.95" step="0.01" oninput="calculateAveraging()"></div>
+                </div>
+                <h3 class="text-sm font-bold text-orange-500 mb-2 uppercase tracking-wide">2. Actions (Repair)</h3>
+                <div class="space-y-3">
+                    <div class="input-group"><label>Sell Shares (Wash Sale) 📉 <div class="tooltip-container"><svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><div class="tooltip-text">Realize loss for taxes / free up cash</div></div></label><input type="number" id="avg_sellCount" value="0" placeholder="0" class="border-red-300 dark:border-red-900 focus:border-red-500" oninput="calculateAveraging()"></div>
+                    <div class="input-group"><label>Buy Shares 📈</label><input type="number" id="avg_buyCount" value="0" placeholder="0" class="border-green-300 dark:border-green-900 focus:border-green-500" oninput="calculateAveraging()"></div>
+                    <div class="input-group"><label>Buy Price ($) <div class="tooltip-container"><svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><div class="tooltip-text">Usually market price, but can be edited if setting a limit order.</div></div></label><input type="number" id="avg_buyPrice" value="13.95" step="0.01" oninput="calculateAveraging()"></div>
+                </div>
+            </aside>
+            <!-- Results -->
+            <div class="lg:col-span-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="card bg-gray-50 dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700"><h3 class="text-gray-500 dark:text-gray-400 font-bold uppercase text-xs mb-4">Before Maneuver</h3><div class="space-y-2"><div class="flex justify-between"><span>Avg Price:</span><span class="font-mono font-bold text-lg" id="res_oldAvg">$0.00</span></div><div class="flex justify-between"><span>Invested:</span><span class="font-mono" id="res_oldInvested">$0.00</span></div><div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2 mt-2"><span>Unrealized PnL:</span><span class="font-mono font-bold text-red-500" id="res_oldPnL">$0.00</span></div></div></div>
+                    <div class="card bg-white dark:bg-gray-900 p-5 rounded-xl border-2 border-blue-500 shadow-lg relative overflow-hidden"><div class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 font-bold rounded-bl-lg">RESULT</div><h3 class="text-blue-600 dark:text-blue-400 font-bold uppercase text-xs mb-4">After Maneuver</h3><div class="space-y-2"><div class="flex justify-between items-center"><span>New Average:</span><span class="font-mono font-bold text-3xl text-green-500" id="res_newAvg">$0.00</span></div><div class="flex justify-between"><span>New Share Count:</span><span class="font-mono font-bold" id="res_newShares">0</span></div><div class="flex justify-between"><span>New Invested Amount:</span><span class="font-mono" id="res_newInvested">$0.00</span></div><div class="flex justify-between border-t border-gray-100 dark:border-gray-800 pt-2 mt-2"><span>Remaining Unrealized PnL:</span><span class="font-mono font-bold text-red-500" id="res_remainingPnL">$0.00</span></div></div></div>
+                </div>
+                <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-lg"><h3 class="font-bold text-lg mb-4">Impact Analysis</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center"><div class="p-4 rounded-lg bg-red-50 dark:bg-red-900/20"><p class="text-xs text-red-600 dark:text-red-400 uppercase font-bold mb-1">Realized Loss</p><p class="text-xl font-bold text-red-600 dark:text-red-400" id="res_realizedPnL">$0.00</p></div><div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20"><p class="text-xs text-blue-600 dark:text-blue-400 uppercase font-bold mb-1">Cash Released</p><p class="text-xl font-bold text-blue-600 dark:text-blue-400" id="res_cashReleased">$0.00</p><p class="text-[10px] opacity-70">From selling</p></div><div class="p-4 rounded-lg bg-green-50 dark:bg-green-900/20"><p class="text-xs text-green-600 dark:text-green-400 uppercase font-bold mb-1">Avg Price Reduction</p><p class="text-xl font-bold text-green-600 dark:text-green-400" id="res_improvement">0.00%</p></div></div></div>
+            </div>
+        </div>
+
+        <!-- ======================= PORTFOLIO VIEW ======================= -->
+        <div id="view-portfolio" class="tab-content grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left: Input & Connect -->
+            <aside class="lg:col-span-12 bg-white dark:bg-gray-900 p-5 rounded-xl shadow-lg h-fit">
+                <div class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-6 border-b dark:border-gray-700 pb-4">
+                    <h2 class="text-lg font-bold">Portfolio Holdings</h2>
+                    
+                    <!-- Google Sheets Connect -->
+                    <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                        <div class="flex gap-2">
+                             <input type="text" id="sheetUrl" placeholder="Paste Google Sheet CSV Link" class="flex-grow md:w-64 p-2 border rounded-md dark:bg-gray-800 dark:border-gray-600 text-sm">
+                             <button onclick="fetchGoogleSheet()" id="fetchBtn" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-green-700 whitespace-nowrap flex items-center gap-2">
+                                 <span>Import</span>
+                             </button>
+                             <button onclick="fetchGoogleSheet()" class="bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700" title="Refresh Data">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+                             </button>
+                        </div>
+                        <div class="w-full md:w-auto flex justify-end">
+                             <button onclick="toggleManualPaste()" class="text-xs text-blue-500 hover:text-blue-400 underline ml-2">Manual Paste / Backup</button>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label>Avg Purchase Price ($)</label>
-                        <input type="number" id="avg_entryPrice" value="16.71" step="0.01" oninput="calculateAveraging()">
+                </div>
+                
+                <!-- Import Mapper (Hidden by default) -->
+                <div id="importMapper" class="hidden mb-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <h3 class="text-sm font-bold mb-3 text-blue-800 dark:text-blue-300">Column Mapping</h3>
+                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">We found these columns in your file. Please verify or correct mapping:</p>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+                        <div><label class="text-xs font-bold block mb-1">Group</label><select id="mapGroup" class="w-full text-xs p-1 rounded border"></select></div>
+                        <div><label class="text-xs font-bold block mb-1">Ticker</label><select id="mapTicker" class="w-full text-xs p-1 rounded border"></select></div>
+                        <div><label class="text-xs font-bold block mb-1">Avg Price</label><select id="mapAvg" class="w-full text-xs p-1 rounded border"></select></div>
+                        <div><label class="text-xs font-bold block mb-1">Curr Price</label><select id="mapCurr" class="w-full text-xs p-1 rounded border"></select></div>
+                        <div><label class="text-xs font-bold block mb-1">Quantity</label><select id="mapQty" class="w-full text-xs p-1 rounded border"></select></div>
                     </div>
-                    <div class="input-group">
-                        <label>Current Market Price ($)</label>
-                        <input type="number" id="avg_marketPrice" value="13.95" step="0.01" oninput="calculateAveraging()">
+                    <div class="flex justify-end gap-2">
+                        <button onclick="cancelMapping()" class="text-xs text-gray-500 hover:text-gray-700">Cancel</button>
+                        <button onclick="applyMapping()" class="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-blue-700">Apply Import</button>
                     </div>
                 </div>
 
-                <h3 class="text-sm font-bold text-orange-500 mb-2 uppercase tracking-wide">2. Actions (Repair)</h3>
-                <div class="space-y-3">
-                    <div class="input-group">
-                        <label>
-                            Sell Shares (Wash Sale) 📉
-                            <div class="tooltip-container">
-                                <svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <div class="tooltip-text">Realize loss for taxes / free up cash</div>
-                            </div>
-                        </label>
-                        <input type="number" id="avg_sellCount" value="0" placeholder="0" class="border-red-300 dark:border-red-900 focus:border-red-500" oninput="calculateAveraging()">
-                    </div>
-                    <div class="input-group">
-                        <label>Buy Shares 📈</label>
-                        <input type="number" id="avg_buyCount" value="0" placeholder="0" class="border-green-300 dark:border-green-900 focus:border-green-500" oninput="calculateAveraging()">
-                    </div>
-                    <!-- Tooltip Field -->
-                    <div class="input-group">
-                        <label>
-                            Buy Price ($)
-                            <div class="tooltip-container">
-                                <svg class="w-4 h-4 tooltip-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <div class="tooltip-text">Usually market price, but can be edited if setting a limit order.</div>
-                            </div>
-                        </label>
-                        <input type="number" id="avg_buyPrice" value="13.95" step="0.01" oninput="calculateAveraging()">
-                    </div>
+                <!-- Manual Paste Area (Hidden by default) -->
+                <div id="manualPasteArea" class="hidden mb-6 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-dashed border-gray-400 dark:border-gray-600">
+                     <p class="text-xs text-gray-500 mb-2">If the link fails (CORS), copy your CSV data (Ctrl+A, Ctrl+C from downloaded file) and paste here:</p>
+                     <textarea id="csvPasteBox" rows="4" class="w-full p-2 text-xs font-mono border rounded-md dark:bg-gray-900 dark:border-gray-700" placeholder="GROUP, TICKER, AVG PRICE, CURRENT PRICE..."></textarea>
+                     <div class="mt-2 flex justify-end">
+                        <button onclick="processPastedCSV()" class="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-blue-700">Load Data</button>
+                     </div>
+                </div>
+                
+                <!-- Table of Assets -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-100 dark:bg-gray-800 text-xs uppercase font-bold text-gray-600 dark:text-gray-300">
+                            <tr>
+                                <th class="px-4 py-3 sortable-header" onclick="sortPortfolio('group')">Group<span id="sort-group" class="sort-icon"></span></th>
+                                <th class="px-4 py-3 sortable-header" onclick="sortPortfolio('ticker')">Ticker<span id="sort-ticker" class="sort-icon"></span></th>
+                                <th class="px-4 py-3 text-right sortable-header" onclick="sortPortfolio('qty')">Quantity<span id="sort-qty" class="sort-icon"></span></th>
+                                <th class="px-4 py-3 text-right sortable-header" onclick="sortPortfolio('avgPrice')">Avg Price<span id="sort-avgPrice" class="sort-icon"></span></th>
+                                <th class="px-4 py-3 text-right sortable-header" onclick="sortPortfolio('currPrice')">Curr Price<span id="sort-currPrice" class="sort-icon"></span></th>
+                                <th class="px-4 py-3 text-right sortable-header" onclick="sortPortfolio('value')">Value ($)<span id="sort-value" class="sort-icon"></span></th>
+                                <th class="px-4 py-3 text-right sortable-header" onclick="sortPortfolio('percent')">Allocation<span id="sort-percent" class="sort-icon"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="portfolioTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Rows injected here -->
+                        </tbody>
+                        <tfoot class="border-t-2 border-gray-300 dark:border-gray-600 font-bold">
+                            <tr>
+                                <td colspan="5" class="px-4 py-3 text-right">TOTAL:</td>
+                                <td class="px-4 py-3 text-right" id="portTotalValue">$0.00</td>
+                                <td class="px-4 py-3 text-right">100%</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </aside>
 
-            <!-- Results -->
-            <div class="lg:col-span-8 space-y-6">
-                <!-- Comparison Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Before -->
-                    <div class="card bg-gray-50 dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-                        <h3 class="text-gray-500 dark:text-gray-400 font-bold uppercase text-xs mb-4">Before Maneuver</h3>
-                        <div class="space-y-2">
-                            <div class="flex justify-between">
-                                <span>Avg Price:</span>
-                                <span class="font-mono font-bold text-lg" id="res_oldAvg">$0.00</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>Invested:</span>
-                                <span class="font-mono" id="res_oldInvested">$0.00</span>
-                            </div>
-                            <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
-                                <span>Unrealized PnL:</span>
-                                <span class="font-mono font-bold text-red-500" id="res_oldPnL">$0.00</span>
-                            </div>
+            <!-- Bottom: Visuals -->
+            <div class="lg:col-span-12 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Asset Chart -->
+                    <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-lg flex flex-col items-center justify-center relative min-h-[400px]">
+                        <h3 class="text-lg font-bold absolute top-6 left-6">Asset Allocation</h3>
+                        <div class="w-full max-w-md">
+                            <canvas id="portfolioChart"></canvas>
+                        </div>
+                        <div id="chartOverlayText" class="absolute text-center pointer-events-none" style="top: 50%; left: 50%; transform: translate(-50%, -10%);">
+                            <p class="text-3xl font-bold text-gray-800 dark:text-gray-100" id="chartTotalCount">0</p>
+                            <p class="text-xs text-gray-500 uppercase">Assets</p>
                         </div>
                     </div>
-
-                    <!-- After -->
-                    <div class="card bg-white dark:bg-gray-900 p-5 rounded-xl border-2 border-blue-500 shadow-lg relative overflow-hidden">
-                        <div class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 font-bold rounded-bl-lg">RESULT</div>
-                        <h3 class="text-blue-600 dark:text-blue-400 font-bold uppercase text-xs mb-4">After Maneuver</h3>
-                        <div class="space-y-2">
-                            <div class="flex justify-between items-center">
-                                <span>New Average:</span>
-                                <span class="font-mono font-bold text-3xl text-green-500" id="res_newAvg">$0.00</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>New Share Count:</span>
-                                <span class="font-mono font-bold" id="res_newShares">0</span>
-                            </div>
-                             <div class="flex justify-between">
-                                <span>New Invested Amount:</span>
-                                <span class="font-mono" id="res_newInvested">$0.00</span>
-                            </div>
-                             <div class="flex justify-between border-t border-gray-100 dark:border-gray-800 pt-2 mt-2">
-                                <span>Remaining Unrealized PnL:</span>
-                                <span class="font-mono font-bold text-red-500" id="res_remainingPnL">$0.00</span>
-                            </div>
+                    <!-- Category Chart (New) -->
+                    <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-lg flex flex-col items-center justify-center relative min-h-[400px]">
+                        <h3 class="text-lg font-bold absolute top-6 left-6">Category Allocation</h3>
+                        <div class="w-full max-w-md">
+                            <canvas id="categoryChart"></canvas>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Impact Analysis -->
-                <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-lg">
-                    <h3 class="font-bold text-lg mb-4">Impact Analysis</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                        <div class="p-4 rounded-lg bg-red-50 dark:bg-red-900/20">
-                            <p class="text-xs text-red-600 dark:text-red-400 uppercase font-bold mb-1">Realized Loss</p>
-                            <p class="text-xl font-bold text-red-600 dark:text-red-400" id="res_realizedPnL">$0.00</p>
-                        </div>
-                        <div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
-                            <p class="text-xs text-blue-600 dark:text-blue-400 uppercase font-bold mb-1">Cash Released</p>
-                            <p class="text-xl font-bold text-blue-600 dark:text-blue-400" id="res_cashReleased">$0.00</p>
-                            <p class="text-[10px] opacity-70">From selling</p>
-                        </div>
-                        <div class="p-4 rounded-lg bg-green-50 dark:bg-green-900/20">
-                            <p class="text-xs text-green-600 dark:text-green-400 uppercase font-bold mb-1">Avg Price Reduction</p>
-                            <p class="text-xl font-bold text-green-600 dark:text-green-400" id="res_improvement">0.00%</p>
+                        <div id="catOverlayText" class="absolute text-center pointer-events-none" style="top: 50%; left: 50%; transform: translate(-50%, -10%);">
+                            <p class="text-3xl font-bold text-gray-800 dark:text-gray-100" id="catTotalCount">0</p>
+                            <p class="text-xs text-gray-500 uppercase">Groups</p>
                         </div>
                     </div>
                 </div>
@@ -499,34 +353,20 @@
                 <button onclick="closePresetsModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
-                
                 <h2 class="text-xl font-bold mb-4">Preset Manager</h2>
-                
-                <!-- Save New -->
                 <div class="flex gap-2 mb-4">
                     <input type="text" id="newPresetName" placeholder="Preset Name" class="flex-grow p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 text-sm">
                     <button onclick="savePreset()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-bold">Save</button>
                 </div>
-
-                <!-- Search -->
                 <div class="mb-4 relative">
                     <input type="text" id="presetSearch" oninput="renderPresetsList()" placeholder="Search presets..." class="w-full p-2 pl-8 border rounded-lg dark:bg-gray-800 dark:border-gray-600 text-sm">
                     <svg class="w-4 h-4 absolute left-2.5 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-
-                <!-- List -->
                 <h3 class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-2">Saved</h3>
-                <div id="presetsList" class="space-y-2 max-h-48 overflow-y-auto mb-6">
-                    <p class="text-sm text-gray-400 italic text-center py-2">No saved presets</p>
-                </div>
-
-                <!-- Import/Export -->
+                <div id="presetsList" class="space-y-2 max-h-48 overflow-y-auto mb-6"><p class="text-sm text-gray-400 italic text-center py-2">No saved presets</p></div>
                 <div class="border-t dark:border-gray-700 pt-4 flex gap-2">
                     <button onclick="exportPresets()" class="flex-1 bg-gray-100 dark:bg-gray-800 text-sm font-semibold py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">Export to file</button>
-                    <label class="flex-1 bg-gray-100 dark:bg-gray-800 text-sm font-semibold py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-center cursor-pointer">
-                        Import from file
-                        <input type="file" id="importFile" accept=".json" onchange="importPresets(this)" class="hidden">
-                    </label>
+                    <label class="flex-1 bg-gray-100 dark:bg-gray-800 text-sm font-semibold py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-center cursor-pointer">Import from file<input type="file" id="importFile" accept=".json" onchange="importPresets(this)" class="hidden"></label>
                 </div>
             </div>
         </div>
@@ -534,676 +374,489 @@
     </main>
 
     <script>
-        // --- Configuration & Constants ---
-        let chartInstance = null;
+        // --- Global Helpers & Vars ---
+        function fmtMoney(n) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n); }
+        function fmtNum(n) { return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n); }
+        function randRange(min, max) { return Math.random() * (max - min) + min; }
         
-        // --- PERSISTENCE LAYER ---
-        const PERSISTENT_IDS = [
-            'tickerSymbol', 
-            'shares', 'avgPrice', 'currPrice', 'initialCapital', 'monthlyContribution',
-            'divYield', 'reinvestMode', 'duration', 'scenario', 'manualGrowth',
-            'avg_shares', 'avg_entryPrice', 'avg_marketPrice', 
-            'avg_sellCount', 'avg_buyCount', 'avg_buyPrice',
-            'enableVolatility', 'volatilityRange'
-        ];
+        let chartInstance = null, portfolioChartInstance = null, categoryChartInstance = null;
+        let portfolioAssets = [], sortDirection = 1, lastSortCol = '', pendingCSVData = null;
+        const PORTFOLIO_KEY = 'strategy_portfolio_data', PRESETS_KEY = 'strategy_presets';
+        const PERSISTENT_IDS = ['tickerSymbol','shares','avgPrice','currPrice','initialCapital','monthlyContribution','divYield','reinvestMode','duration','scenario','manualGrowth','avg_shares','avg_entryPrice','avg_marketPrice','avg_sellCount','avg_buyCount','avg_buyPrice','enableVolatility','volatilityRange','sheetUrl'];
 
-        const PRESETS_KEY = 'strategy_presets';
-
-        function loadSavedData() {
-            PERSISTENT_IDS.forEach(id => {
-                const savedValue = localStorage.getItem(id);
-                if (savedValue !== null) {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        if(el.type === 'checkbox') el.checked = (savedValue === 'true');
-                        else el.value = savedValue;
-                    }
-                }
-            });
-            // Update volatility text on load
-            const range = document.getElementById('volatilityRange');
-            if(range) document.getElementById('volatilityValueText').innerText = range.value + '%';
-        }
-
-        function setupAutoSave() {
-            PERSISTENT_IDS.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    const saveHandler = () => {
-                        const val = el.type === 'checkbox' ? el.checked : el.value;
-                        localStorage.setItem(id, val);
-                        if(id === 'volatilityRange') {
-                            document.getElementById('volatilityValueText').innerText = val + '%';
-                        }
-                    };
-                    el.addEventListener('input', saveHandler);
-                    el.addEventListener('change', saveHandler);
-                }
-            });
-        }
-
-        // --- CLEAR FIELDS LOGIC ---
-        function clearFields() {
-            if(!confirm('Are you sure you want to clear all fields?')) return;
-            
-            // Clear Simulation Inputs
-            const simIds = [
-                'tickerSymbol', 'shares', 'avgPrice', 'currPrice', 
-                'initialCapital', 'monthlyContribution', 'divYield', 'manualGrowth'
-            ];
-            
-            simIds.forEach(id => {
-                const el = document.getElementById(id);
-                if(el) {
-                    el.value = '';
-                    localStorage.removeItem(id);
-                }
-            });
-            
-            // Reset Selects
-            document.getElementById('reinvestMode').selectedIndex = 0;
-            document.getElementById('duration').value = "12";
-            document.getElementById('scenario').value = 'flat';
-            
-            // Update State
-            localStorage.removeItem('reinvestMode');
-            localStorage.removeItem('duration');
-            localStorage.removeItem('scenario');
-            updateGrowthInput();
-
-            // Clear Averaging Inputs
-            const avgIds = ['avg_shares', 'avg_entryPrice', 'avg_marketPrice', 'avg_sellCount', 'avg_buyCount', 'avg_buyPrice'];
-            avgIds.forEach(id => {
-                const el = document.getElementById(id);
-                if(el) {
-                    el.value = '';
-                    localStorage.removeItem(id);
-                }
-            });
-
-            // Run with empty values
-            runSimulation();
-        }
-
-        // --- PRESETS LOGIC ---
-        function openPresetsModal() {
-            document.getElementById('presetsModal').classList.remove('hidden');
-            document.getElementById('presetsModal').classList.add('flex');
-            // Clear search
-            document.getElementById('presetSearch').value = '';
-            
-            // Auto-fill Preset Name
-            const ticker = document.getElementById('tickerSymbol').value.trim().toUpperCase() || 'ASSET';
-            const durationText = document.getElementById('duration').options[document.getElementById('duration').selectedIndex].text;
-            
-            const now = new Date();
-            // yy-mm-dd
-            const year = now.getFullYear().toString().slice(-2);
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            // HH:mm
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-
-            const autoName = `${ticker} - ${durationText} - ${year}-${month}-${day} - ${hours}:${minutes}`;
-            document.getElementById('newPresetName').value = autoName;
-
-            renderPresetsList();
-        }
-
-        function closePresetsModal() {
-            document.getElementById('presetsModal').classList.add('hidden');
-            document.getElementById('presetsModal').classList.remove('flex');
-        }
-
-        function getPresets() {
-            const saved = localStorage.getItem(PRESETS_KEY);
-            return saved ? JSON.parse(saved) : {};
-        }
-
-        function updateHeaderPresets() {
-            const selector = document.getElementById('headerPresetSelect');
-            if(!selector) return;
-            
-            const presets = getPresets();
-            const names = Object.keys(presets);
-            
-            // Keep first option
-            selector.innerHTML = '<option value="" disabled selected>📂 Load Preset...</option>';
-            
-            names.forEach(name => {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name;
-                selector.appendChild(option);
-            });
-        }
-
-        function loadPresetFromHeader(name) {
-            if(!name) return;
-            loadPreset(name);
-            document.getElementById('headerPresetSelect').value = "";
-        }
-
-        function savePreset() {
-            const name = document.getElementById('newPresetName').value.trim();
-            if (!name) return alert('Enter a name!');
-
-            const currentData = {};
-            PERSISTENT_IDS.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) currentData[id] = el.type === 'checkbox' ? el.checked : el.value;
-            });
-
-            const presets = getPresets();
-            presets[name] = currentData;
-            localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
-            
-            // document.getElementById('newPresetName').value = ''; // Keep it filled? or clear. Let's clear.
-            renderPresetsList();
-            updateHeaderPresets(); // Update header
-        }
-
-        function loadPreset(name) {
-            const presets = getPresets();
-            const data = presets[name];
-            if (!data) return;
-
-            // Apply values
-            Object.keys(data).forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    if (el.type === 'checkbox') el.checked = data[id];
-                    else el.value = data[id];
-                    // Trigger change to save to persistence immediatey
-                    localStorage.setItem(id, data[id]);
-                }
-            });
-
-            // Update UI state
-            const range = document.getElementById('volatilityRange');
-            if(range) document.getElementById('volatilityValueText').innerText = range.value + '%';
-            updateGrowthInput();
-            toggleVolatilityControls();
-            
-            // Rerun logic
-            if(document.getElementById('view-simulation').classList.contains('active')) {
-                runSimulation();
-            } else {
-                calculateAveraging();
-            }
-            
-            // If called from modal
-            if(!document.getElementById('presetsModal').classList.contains('hidden')) {
-                closePresetsModal();
-            }
-        }
-
-        function deletePreset(name) {
-            if(!confirm(`Delete "${name}"?`)) return;
-            const presets = getPresets();
-            delete presets[name];
-            localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
-            renderPresetsList();
-            updateHeaderPresets(); // Update header
-        }
-
-        function renderPresetsList() {
-            const list = document.getElementById('presetsList');
-            const searchTerm = document.getElementById('presetSearch').value.toLowerCase();
-            const presets = getPresets();
-            const names = Object.keys(presets).filter(name => name.toLowerCase().includes(searchTerm));
-
-            if (names.length === 0) {
-                list.innerHTML = '<p class="text-sm text-gray-400 italic text-center py-2">No saved presets</p>';
-                return;
-            }
-
-            list.innerHTML = '';
-            names.forEach(name => {
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center bg-gray-50 dark:bg-gray-800 p-2 rounded-lg border dark:border-gray-700';
-                div.innerHTML = `
-                    <span class="font-medium text-sm truncate flex-grow">${name}</span>
-                    <div class="flex gap-2">
-                        <button onclick="loadPreset('${name}')" class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 dark:bg-green-900 dark:text-green-300">Load</button>
-                        <button onclick="deletePreset('${name}')" class="text-gray-400 hover:text-red-500 px-1">✕</button>
-                    </div>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        function exportPresets() {
-            const presets = getPresets();
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(presets));
-            
-            // Dynamic Name for Export
-            const ticker = document.getElementById('tickerSymbol').value.trim().toUpperCase() || 'ASSET';
-            const durationEl = document.getElementById('duration');
-            const durationText = durationEl.options[durationEl.selectedIndex].text.replace(/ /g, '_');
-            
-            const now = new Date();
-            // yy-mm-dd
-            const year = now.getFullYear().toString().slice(-2);
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            // HH-mm
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-
-            const filename = `${ticker}_${durationText}_${year}-${month}-${day}_${hours}-${minutes}.json`.replace(/ /g, '_');
-
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", filename);
-            document.body.appendChild(downloadAnchorNode); // required for firefox
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        }
-
-        function importPresets(input) {
-            const file = input.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    const current = getPresets();
-                    const merged = { ...current, ...imported };
-                    localStorage.setItem(PRESETS_KEY, JSON.stringify(merged));
-                    renderPresetsList();
-                    updateHeaderPresets(); // Update header
-                    alert('Presets imported successfully!');
-                } catch (err) {
-                    alert('Error reading file');
-                }
-            };
-            reader.readAsText(file);
-            input.value = ''; // reset
-        }
-
-        // --- Initialization ---
-        const themeToggle = document.getElementById('themeToggle');
-        const html = document.documentElement;
-        
-        themeToggle.addEventListener('click', () => {
-            html.classList.toggle('dark');
-            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-            if(document.getElementById('view-simulation').classList.contains('active')) {
-                runSimulation();
-            }
-        });
-
-        if (localStorage.getItem('theme') === 'light') html.classList.remove('dark');
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(`view-${tabName}`).classList.add('active');
-            
-            const btnSim = document.getElementById('tab-sim');
-            const btnAvg = document.getElementById('tab-avg');
-            
-            const activeClass = ['bg-white', 'dark:bg-gray-700', 'shadow-sm', 'text-gray-900', 'dark:text-gray-100'];
-            const inactiveClass = ['text-gray-500', 'hover:text-gray-700', 'dark:text-gray-400', 'dark:hover:text-gray-200'];
-
-            if(tabName === 'simulation') {
-                btnSim.classList.add(...activeClass);
-                btnSim.classList.remove('text-gray-500');
-                btnAvg.classList.remove(...activeClass);
-                btnAvg.classList.add(...inactiveClass);
-                runSimulation(); 
-            } else {
-                btnAvg.classList.add(...activeClass);
-                btnAvg.classList.remove('text-gray-500');
-                btnSim.classList.remove(...activeClass);
-                btnSim.classList.add(...inactiveClass);
-                
-                document.getElementById('avg_shares').value = document.getElementById('shares').value;
-                // document.getElementById('avg_entryPrice').value = document.getElementById('avgPrice').value; // Unlinked per user request
-                document.getElementById('avg_marketPrice').value = document.getElementById('currPrice').value;
-                document.getElementById('avg_buyPrice').value = document.getElementById('currPrice').value;
-                calculateAveraging();
-            }
-        }
-
-        function handleGlobalKey(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // prevent form submits if any
-                runActiveCalculation();
-            }
-        }
-
-        function runActiveCalculation() {
-            if (document.getElementById('view-simulation').classList.contains('active')) {
-                runSimulation();
-            } else {
-                calculateAveraging();
-            }
-        }
-
-        // --- Helpers ---
-        const fmtMoney = (num) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
-        const fmtNum = (num) => num.toFixed(2);
-        const randRange = (min, max) => Math.random() * (max - min) + min;
-
-        // --- UI Logic ---
-        function toggleVolatilityControls() {
-            const isChecked = document.getElementById('enableVolatility').checked;
-            const container = document.getElementById('volatilityContainer');
-            if(isChecked) container.classList.remove('hidden');
-            else container.classList.add('hidden');
-        }
-
-        function updateGrowthInput() {
-            const scenario = document.getElementById('scenario').value;
-            const growthInput = document.getElementById('manualGrowth');
-            let currentVal = parseFloat(growthInput.value);
-            
-            // Auto Sign Logic
-            if (scenario === 'bear' && currentVal > 0) {
-                growthInput.value = -currentVal;
-            } else if (scenario === 'bull' && currentVal < 0) {
-                growthInput.value = Math.abs(currentVal);
-            }
-
-            if (scenario === 'flat') {
-                growthInput.disabled = true;
-            } else {
-                growthInput.disabled = false;
-                if (currentVal === 0) {
-                    if (scenario === 'bull') growthInput.value = 10;
-                    if (scenario === 'bear') growthInput.value = -10;
-                }
-            }
-            // Ensure UI save update
-            localStorage.setItem('manualGrowth', growthInput.value);
-        }
-
-        // --- Logic: Simulation ---
-        function runSimulation() {
-            // Inputs
-            const initialShares = parseFloat(document.getElementById('shares').value) || 0;
-            const avgPrice = parseFloat(document.getElementById('avgPrice').value) || 0;
-            const startPrice = parseFloat(document.getElementById('currPrice').value) || 0;
-            const initialCapital = parseFloat(document.getElementById('initialCapital').value) || 0;
-            const monthlyContrib = parseFloat(document.getElementById('monthlyContribution').value) || 0;
-            
-            const divYieldPercent = parseFloat(document.getElementById('divYield').value) || 0;
-            const reinvestMode = document.getElementById('reinvestMode').value;
-            const durationMonths = parseInt(document.getElementById('duration').value);
-            const enableVolatility = document.getElementById('enableVolatility').checked;
-            const volatilityRangeVal = parseFloat(document.getElementById('volatilityRange').value);
-
-            // Growth Logic
-            const scenario = document.getElementById('scenario').value;
-            let annualGrowthPct = parseFloat(document.getElementById('manualGrowth').value) || 0;
-            if(scenario === 'flat') annualGrowthPct = 0; 
-
-            // Update title
-            document.getElementById('chartTitle').innerText = `Equity Projection (${durationMonths} mon.)`;
-
-            // Simulation Variables
-            let currentPrice = startPrice;
-            let currentShares = initialShares;
-            let accumulatedCash = initialCapital;
-            let totalInvested = initialShares * avgPrice; 
-            let totalMonthlyContribs = 0;
-            let cumulativeDividends = 0; // New tracking var
-            
-            let totalEquity = 0;
-            
-            let equityCurve = [];
-            let investmentLine = [];
-            let breakEvenMonth = null;
-
-            // Month 0
-            let startEquity = (currentShares * startPrice) + accumulatedCash;
-            equityCurve.push(startEquity);
-            investmentLine.push(totalInvested);
-            
-            let tableHTML = '';
-            
-            // Monthly Drift Calculation (Geometric)
-            let monthlyGrowthRate = 0;
-            if (scenario !== 'flat') {
-                monthlyGrowthRate = Math.pow(1 + (annualGrowthPct / 100), 1 / 12) - 1;
-            }
-
-            // Volatility Setting (User Defined or 0)
-            const volatility = enableVolatility ? (volatilityRangeVal / 100) : 0;
-
-            for (let m = 1; m <= durationMonths; m++) {
-                // 1. Price Movement
-                let shock = 0;
-                if(enableVolatility) {
-                    shock = (Math.random() - 0.5) * 2 * volatility;
-                }
-                
-                currentPrice = currentPrice * (1 + monthlyGrowthRate + shock);
-                if (currentPrice < 0.01) currentPrice = 0.01;
-
-                // 2. Monthly Contribution
-                let sharesFromDCA = 0;
-                if(monthlyContrib > 0) {
-                    sharesFromDCA = monthlyContrib / currentPrice;
-                    currentShares += sharesFromDCA;
-                    totalInvested += monthlyContrib;
-                    totalMonthlyContribs += monthlyContrib;
-                }
-
-                // 3. Dividend Calculation
-                let monthlyYield = (divYieldPercent / 100) / 12;
-                let divNoise = enableVolatility ? randRange(0.95, 1.05) : 1.0;
-                let currentDivTotal = (currentPrice * currentShares) * monthlyYield * divNoise;
-                cumulativeDividends += currentDivTotal;
-                
-                // 4. Action & Labeling
-                let actionText = "";
-                let sharesFromDivs = 0;
-                
-                // Build label
-                let dcaLabel = "";
-                if(sharesFromDCA > 0) dcaLabel = `DCA: +${sharesFromDCA.toFixed(2)}`;
-
-                if (reinvestMode === 'reinvest') {
-                    // Reinvest: Buy more
-                    sharesFromDivs = currentDivTotal / currentPrice;
-                    currentShares += sharesFromDivs;
-                    
-                    let divLabel = `Div: +${sharesFromDivs.toFixed(2)}`;
-                    actionText = dcaLabel ? `${dcaLabel} | ${divLabel}` : divLabel;
-                } else {
-                    // Cash Flow: Stack
-                    accumulatedCash += currentDivTotal;
-                    
-                    let divLabel = `Div: +${fmtMoney(currentDivTotal)}`;
-                    actionText = dcaLabel ? `${dcaLabel} | ${divLabel}` : divLabel;
-                }
-
-                // 5. Equity Calc
-                let positionsValue = currentShares * currentPrice;
-                totalEquity = positionsValue + accumulatedCash;
-
-                equityCurve.push(totalEquity);
-                investmentLine.push(totalInvested);
-
-                if (totalEquity >= totalInvested && breakEvenMonth === null) {
-                    breakEvenMonth = m;
-                }
-
-                if (durationMonths <= 60 || m % Math.ceil(durationMonths/60) === 0 || m === durationMonths) {
-                    const rowClass = m % 2 === 0 ? 'bg-gray-50 dark:bg-gray-800/50' : '';
-                    tableHTML += `
-                        <tr class="${rowClass} hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                            <td class="px-4 py-2 font-mono">${m}</td>
-                            <td class="px-4 py-2 text-gray-600 dark:text-gray-400">$${currentPrice.toFixed(2)}</td>
-                            <td class="px-4 py-2 text-green-600">+${fmtMoney(currentDivTotal)}</td>
-                            <td class="px-4 py-2 text-purple-600 dark:text-purple-400 font-medium text-xs">${actionText}</td>
-                            <td class="px-4 py-2 font-mono text-xs">${fmtNum(currentShares)}</td>
-                            <td class="px-4 py-2 font-mono text-xs text-gray-500">${fmtMoney(accumulatedCash)}</td>
-                            <td class="px-4 py-2 text-right font-bold ${totalEquity >= totalInvested ? 'text-green-500' : 'text-red-500'}">${fmtMoney(totalEquity)}</td>
-                        </tr>
-                    `;
-                }
-            }
-
-            document.getElementById('tableBody').innerHTML = tableHTML;
-            
-            const finalPnL = totalEquity - totalInvested;
-            const pnlColor = finalPnL >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
-            
-            document.getElementById('kpiPnL').innerHTML = `<span class="${pnlColor}">${fmtMoney(finalPnL)}</span>`;
-            document.getElementById('kpiPnLPercent').innerText = `${((finalPnL/totalInvested)*100).toFixed(2)}% ROI`;
-            
-            // NEW KPIs
-            document.getElementById('kpiTotalDivs').innerText = fmtMoney(cumulativeDividends);
-            document.getElementById('kpiTotalShares').innerText = fmtNum(currentShares);
-            document.getElementById('kpiTotalEquity').innerText = fmtMoney(totalEquity);
-            
-            // Extra info for Shares card (Diff from start)
-            const shareDiff = currentShares - initialShares;
-            const shareDiffSign = shareDiff >= 0 ? '+' : '';
-            document.getElementById('kpiShareDiff').innerText = `${shareDiffSign}${fmtNum(shareDiff)} over period`;
-
-            document.getElementById('kpiBreakeven').innerText = breakEvenMonth ? `Month ${breakEvenMonth}` : "Never";
-            if(breakEvenMonth) document.getElementById('kpiBreakeven').className = "text-lg font-bold text-green-600 dark:text-green-400";
-            else document.getElementById('kpiBreakeven').className = "text-lg font-bold text-gray-400";
-
-            renderChart(equityCurve, investmentLine, durationMonths);
-        }
-
-        // --- Logic: Averaging Calculator ---
-        function calculateAveraging() {
-            // Inputs
-            const shares = parseFloat(document.getElementById('avg_shares').value) || 0;
-            const avgEntry = parseFloat(document.getElementById('avg_entryPrice').value) || 0;
-            const marketPrice = parseFloat(document.getElementById('avg_marketPrice').value) || 0;
-            const startCash = 0; // Removed from UI, setting to 0
-            
-            const sellCount = parseFloat(document.getElementById('avg_sellCount').value) || 0;
-            const buyCount = parseFloat(document.getElementById('avg_buyCount').value) || 0;
-            const buyPrice = parseFloat(document.getElementById('avg_buyPrice').value) || 0;
-
-            const oldTotalInvested = shares * avgEntry;
-            const currentValue = shares * marketPrice;
-            const oldUnrealizedPnL = currentValue - oldTotalInvested;
-
-            document.getElementById('res_oldAvg').innerText = fmtMoney(avgEntry);
-            document.getElementById('res_oldInvested').innerText = fmtMoney(oldTotalInvested);
-            document.getElementById('res_oldPnL').innerText = fmtMoney(oldUnrealizedPnL);
-            document.getElementById('res_oldPnL').className = `font-mono font-bold ${oldUnrealizedPnL >= 0 ? 'text-green-500' : 'text-red-500'}`;
-
-            let remainingShares = shares - sellCount;
-            if(remainingShares < 0) remainingShares = 0;
-            
-            let costBasisAfterSell = remainingShares * avgEntry; 
-            let realizedPnL = (marketPrice - avgEntry) * sellCount;
-
-            let costOfNewShares = buyCount * buyPrice;
-            let cashReleased = sellCount * marketPrice; // Money from selling
-
-            let newTotalShares = remainingShares + buyCount;
-            
-            let newTotalBasis = costBasisAfterSell + costOfNewShares;
-            let newAvgPrice = newTotalShares > 0 ? newTotalBasis / newTotalShares : 0;
-            
-            // New remaining PnL calc
-            let newValue = newTotalShares * marketPrice;
-            let newUnrealizedPnL = newValue - newTotalBasis;
-
-            document.getElementById('res_newAvg').innerText = fmtMoney(newAvgPrice);
-            document.getElementById('res_newShares').innerText = newTotalShares.toFixed(2);
-            document.getElementById('res_newInvested').innerText = fmtMoney(newTotalBasis);
-
-            document.getElementById('res_realizedPnL').innerText = fmtMoney(realizedPnL);
-            document.getElementById('res_cashReleased').innerText = fmtMoney(cashReleased);
-            
-            document.getElementById('res_remainingPnL').innerText = fmtMoney(newUnrealizedPnL);
-            document.getElementById('res_remainingPnL').className = `font-mono font-bold ${newUnrealizedPnL >= 0 ? 'text-green-500' : 'text-red-500'}`;
-            
-            let improvement = 0;
-            if (avgEntry > 0) {
-                improvement = ((avgEntry - newAvgPrice) / avgEntry) * 100;
-            }
-            
-            document.getElementById('res_improvement').innerText = `${improvement.toFixed(2)}%`;
-            document.getElementById('res_improvement').className = `text-xl font-bold ${improvement > 0 ? 'text-green-500' : 'text-gray-500'}`;
-        }
-
-        function renderChart(equityData, investmentData, duration) {
+        // --- Chart Renderers ---
+        function renderChart(data1, data2, dur) {
+            if(chartInstance) chartInstance.destroy();
             const ctx = document.getElementById('strategyChart').getContext('2d');
-            const isDark = html.classList.contains('dark');
-            const gridColor = isDark ? '#374151' : '#e5e7eb';
+            const isDark = document.documentElement.classList.contains('dark');
             const textColor = isDark ? '#9ca3af' : '#4b5563';
-
-            if (chartInstance) chartInstance.destroy();
-
-            const labels = Array.from({length: duration + 1}, (_, i) => i === 0 ? 'Start' : `M${i}`);
+            const gridColor = isDark ? '#374151' : '#e5e7eb';
 
             chartInstance = new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Total Equity (Asset + Cash)',
-                            data: equityData,
-                            borderColor: '#10b981', // Emerald 500
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: duration > 60 ? 0 : 2
-                        },
-                        {
-                            label: 'Total Invested (Out of Pocket)',
-                            data: investmentData,
-                            borderColor: '#ef4444', // Red 500
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            pointRadius: 0,
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: { labels: { color: textColor } },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) label += ': ';
-                                    if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: { grid: { color: gridColor }, ticks: { color: textColor, maxTicksLimit: 12 } },
-                        y: { grid: { color: gridColor }, ticks: { color: textColor } }
-                    }
+                data: { labels: Array.from({length: dur+1}, (_,i)=>i), datasets: [
+                    { label: 'Equity', data: data1, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true },
+                    { label: 'Invested', data: data2, borderColor: '#ef4444', borderDash: [5,5] }
+                ]},
+                options: { 
+                    responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { labels: { color: textColor } } },
+                    scales: { x: { grid: { color: gridColor }, ticks: { color: textColor } }, y: { grid: { color: gridColor }, ticks: { color: textColor } } }
                 }
             });
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadSavedData();
-            setupAutoSave();
-            toggleVolatilityControls(); // Ensure correct visual state
-            updateGrowthInput();
-            updateHeaderPresets();
-            runSimulation();
-        });
+        function renderPortfolioChart() {
+            if(portfolioChartInstance) portfolioChartInstance.destroy();
+            const ctx = document.getElementById('portfolioChart').getContext('2d');
+            const isDark = document.documentElement.classList.contains('dark');
+            const labels = portfolioAssets.map(a => a.ticker);
+            const data = portfolioAssets.map(a => a.value);
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6', '#f97316', '#06b6d4'];
+            
+            portfolioChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0 }] },
+                options: { responsive: true, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: isDark ? '#9ca3af' : '#374151', usePointStyle: true, boxWidth: 8 } } } }
+            });
+        }
 
+        function renderCategoryChart() {
+            if(categoryChartInstance) categoryChartInstance.destroy();
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            const isDark = document.documentElement.classList.contains('dark');
+            const groups = {};
+            portfolioAssets.forEach(a => { if(!groups[a.group]) groups[a.group]=0; groups[a.group]+=a.value; });
+            const labels = Object.keys(groups);
+            const data = Object.values(groups);
+            
+            const catColors = labels.map(l => {
+                if(l==='A') return '#3b82f6'; if(l==='B') return '#8b5cf6'; 
+                if(l==='C') return '#f59e0b'; if(l==='D') return '#10b981'; return '#9ca3af';
+            });
+
+            categoryChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels, datasets: [{ data, backgroundColor: catColors, borderWidth: 0 }] },
+                options: { responsive: true, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: isDark ? '#9ca3af' : '#374151', usePointStyle: true, boxWidth: 8 } } } }
+            });
+        }
+
+        // --- Calculations ---
+        function calculateAveraging() {
+            const shares = parseFloat(document.getElementById('avg_shares').value) || 0;
+            const avgEntry = parseFloat(document.getElementById('avg_entryPrice').value) || 0;
+            const mkt = parseFloat(document.getElementById('avg_marketPrice').value) || 0;
+            const sell = parseFloat(document.getElementById('avg_sellCount').value) || 0;
+            const buy = parseFloat(document.getElementById('avg_buyCount').value) || 0;
+            const buyP = parseFloat(document.getElementById('avg_buyPrice').value) || 0;
+            
+            document.getElementById('res_oldAvg').innerText = fmtMoney(avgEntry);
+            document.getElementById('res_oldInvested').innerText = fmtMoney(shares*avgEntry);
+            document.getElementById('res_oldPnL').innerText = fmtMoney((shares*mkt) - (shares*avgEntry));
+            
+            let remS = shares - sell;
+            let cost = remS * avgEntry;
+            let realized = (mkt - avgEntry) * sell;
+            let released = sell * mkt;
+            
+            let newCost = cost + (buy * buyP);
+            let newS = remS + buy;
+            let newAvg = newS ? newCost / newS : 0;
+            
+            document.getElementById('res_newAvg').innerText = fmtMoney(newAvg);
+            document.getElementById('res_newShares').innerText = fmtNum(newS);
+            document.getElementById('res_newInvested').innerText = fmtMoney(newCost);
+            document.getElementById('res_realizedPnL').innerText = fmtMoney(realized);
+            document.getElementById('res_cashReleased').innerText = fmtMoney(released);
+            
+            let remainingPnL = (newS * mkt) - newCost;
+            document.getElementById('res_remainingPnL').innerText = fmtMoney(remainingPnL);
+            
+            let imp = avgEntry ? ((avgEntry - newAvg)/avgEntry)*100 : 0;
+            document.getElementById('res_improvement').innerText = imp.toFixed(2) + '%';
+        }
+
+        function runSimulation() {
+            const shares = parseFloat(document.getElementById('shares').value)||0;
+            const price = parseFloat(document.getElementById('currPrice').value)||0;
+            const cap = parseFloat(document.getElementById('initialCapital').value)||0;
+            const contrib = parseFloat(document.getElementById('monthlyContribution').value)||0;
+            const yieldPct = parseFloat(document.getElementById('divYield').value)||0;
+            const months = parseInt(document.getElementById('duration').value);
+            const volatility = document.getElementById('enableVolatility').checked ? (parseFloat(document.getElementById('volatilityRange').value)/100) : 0;
+            const mode = document.getElementById('reinvestMode').value;
+            const scenario = document.getElementById('scenario').value;
+            let growth = parseFloat(document.getElementById('manualGrowth').value)||0;
+            if(scenario==='flat') growth=0;
+
+            let currP = price, currS = shares, cash = cap, invested = shares * (parseFloat(document.getElementById('avgPrice').value)||0);
+            let totalDivs = 0;
+            
+            let equityData = [], investData = [];
+            let startEq = (currS * currP) + cash;
+            equityData.push(startEq); investData.push(invested);
+
+            const monthlyGrowth = scenario !== 'flat' ? Math.pow(1 + (growth/100), 1/12) - 1 : 0;
+            let table = '';
+
+            for(let m=1; m<=months; m++) {
+                let shock = volatility ? (Math.random()-0.5)*2*volatility : 0;
+                currP = currP * (1 + monthlyGrowth + shock);
+                if(currP < 0.01) currP = 0.01;
+
+                if(contrib > 0) {
+                    let newS = contrib / currP;
+                    currS += newS;
+                    invested += contrib;
+                }
+
+                let div = (currP * currS) * ((yieldPct/100)/12) * (volatility ? randRange(0.95, 1.05) : 1);
+                totalDivs += div;
+
+                let action = '';
+                if(mode === 'reinvest') {
+                    let newS = div / currP;
+                    currS += newS;
+                    action = `Reinv: +${newS.toFixed(2)}`;
+                } else {
+                    cash += div;
+                    action = `Cash: +${fmtMoney(div)}`;
+                }
+
+                let eq = (currS * currP) + cash;
+                equityData.push(eq); investData.push(invested);
+
+                if(months <= 60 || m % Math.ceil(months/60) === 0) {
+                     table += `<tr><td class="px-4 py-2 text-xs">${m}</td><td class="text-xs">$${currP.toFixed(2)}</td><td class="text-green-500 text-xs">+${fmtMoney(div)}</td><td class="text-xs">${action}</td><td class="text-xs">${fmtNum(currS)}</td><td class="text-xs">${fmtMoney(cash)}</td><td class="font-bold text-xs">${fmtMoney(eq)}</td></tr>`;
+                }
+            }
+
+            document.getElementById('tableBody').innerHTML = table;
+            document.getElementById('kpiPnL').innerText = fmtMoney(equityData[months] - invested);
+            document.getElementById('kpiTotalDivs').innerText = fmtMoney(totalDivs);
+            document.getElementById('kpiTotalShares').innerText = fmtNum(currS);
+            document.getElementById('kpiTotalEquity').innerText = fmtMoney(equityData[months]);
+            
+            const initialShares = parseFloat(document.getElementById('shares').value)||0;
+            const diff = currS - initialShares;
+            document.getElementById('kpiShareDiff').innerText = `${diff>=0?'+':''}${fmtNum(diff)}`;
+            
+            renderChart(equityData, investData, months);
+        }
+
+        // --- UI Functions ---
+        function toggleVolatilityControls() {
+            const chk = document.getElementById('enableVolatility');
+            const cont = document.getElementById('volatilityContainer');
+            if(chk && cont) { if(chk.checked) cont.classList.remove('hidden'); else cont.classList.add('hidden'); }
+        }
+        
+        function updateGrowthInput() {
+            const scen = document.getElementById('scenario').value;
+            const inp = document.getElementById('manualGrowth');
+            let val = parseFloat(inp.value);
+            if(scen === 'bear' && val > 0) inp.value = -val;
+            if(scen === 'bull' && val < 0) inp.value = Math.abs(val);
+            if(scen === 'flat') { inp.disabled = true; } else { inp.disabled = false; if(val===0) inp.value = scen==='bull'?10:-10; }
+            localStorage.setItem('manualGrowth', inp.value);
+        }
+
+        function switchTab(name) {
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+            document.getElementById('view-'+name).classList.add('active');
+            
+            const btns = { sim: 'tab-sim', avg: 'tab-avg', port: 'tab-port' };
+            Object.keys(btns).forEach(k => {
+                const b = document.getElementById(btns[k]);
+                if(k === (name === 'simulation' ? 'sim' : (name === 'averaging' ? 'avg' : 'port'))) {
+                   b.className = "px-4 py-2 rounded-md text-sm font-bold bg-white dark:bg-gray-700 shadow-sm transition whitespace-nowrap";
+                } else {
+                   b.className = "px-4 py-2 rounded-md text-sm font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition whitespace-nowrap";
+                }
+            });
+
+            if(name === 'simulation') runSimulation();
+            else if(name === 'averaging') {
+                document.getElementById('avg_shares').value = document.getElementById('shares').value;
+                document.getElementById('avg_marketPrice').value = document.getElementById('currPrice').value;
+                calculateAveraging();
+            } else if(name === 'portfolio') {
+                if(portfolioAssets.length) renderPortfolioTable();
+            }
+        }
+
+        function toggleManualPaste() {
+            document.getElementById('manualPasteArea').classList.toggle('hidden');
+            document.getElementById('importMapper').classList.add('hidden');
+        }
+
+        function handleGlobalKey(e) { if(e.key==='Enter') { e.preventDefault(); runActiveCalculation(); } }
+        
+        function runActiveCalculation() {
+             if(document.getElementById('view-simulation').classList.contains('active')) runSimulation();
+             else if(document.getElementById('view-averaging').classList.contains('active')) calculateAveraging();
+        }
+
+        // --- Persistence ---
+        function loadSavedData() {
+            PERSISTENT_IDS.forEach(id => {
+                const v = localStorage.getItem(id);
+                if(v !== null) {
+                    const el = document.getElementById(id);
+                    if(el) { if(el.type==='checkbox') el.checked=(v==='true'); else el.value=v; }
+                }
+            });
+            const range = document.getElementById('volatilityRange');
+            if(range) document.getElementById('volatilityValueText').innerText = range.value + '%';
+            const savedPort = localStorage.getItem(PORTFOLIO_KEY);
+            if(savedPort) portfolioAssets = JSON.parse(savedPort);
+        }
+        
+        function setupAutoSave() {
+            PERSISTENT_IDS.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    const handler = () => {
+                         const v = el.type==='checkbox' ? el.checked : el.value;
+                         localStorage.setItem(id, v);
+                         if(id==='volatilityRange') document.getElementById('volatilityValueText').innerText = v + '%';
+                    };
+                    el.addEventListener('input', handler);
+                    el.addEventListener('change', handler);
+                }
+            });
+        }
+
+        // --- Google Sheets Import ---
+        const CORS_PROXIES = ['https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
+        
+        async function fetchGoogleSheet() {
+            const url = document.getElementById('sheetUrl').value.trim();
+            if(!url) return alert('Paste CSV Link');
+            const btn = document.getElementById('fetchBtn');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div> Importing...';
+            btn.disabled = true;
+            
+            let success = false;
+            for(const p of CORS_PROXIES) {
+                try {
+                    const res = await fetch(p + encodeURIComponent(url));
+                    if(!res.ok) throw new Error('Net Err');
+                    const txt = await res.text();
+                    if(!txt.includes(',')) throw new Error('Bad CSV');
+                    showImportMapper(txt);
+                    success = true;
+                    break;
+                } catch(e) { console.warn(e); }
+            }
+            if(!success) alert('Import Failed. Try Manual Paste.');
+            btn.innerHTML = orig;
+            btn.disabled = false;
+        }
+
+        function processPastedCSV() {
+            const txt = document.getElementById('csvPasteBox').value;
+            if(!txt) return alert('Paste Data');
+            showImportMapper(txt);
+            document.getElementById('manualPasteArea').classList.add('hidden');
+        }
+
+        function showImportMapper(csv) {
+            const rows = csv.split(/\r?\n/);
+            if(rows.length < 2) return;
+            
+            let hIdx = -1;
+            for(let i=0; i<Math.min(rows.length, 30); i++) {
+                const r = rows[i].toUpperCase();
+                if(r.includes('TICKER') || r.includes('SYMBOL') || r.includes('ASSET')) { hIdx = i; break; }
+            }
+            if(hIdx === -1) hIdx = 0;
+            
+            const headers = rows[hIdx].split(',').map(h => h.trim().replace(/['"]+/g, ''));
+            pendingCSVData = { rows, hIdx };
+            
+            const mapping = ['mapGroup', 'mapTicker', 'mapAvg', 'mapCurr', 'mapQty'];
+            mapping.forEach(id => {
+                const s = document.getElementById(id);
+                s.innerHTML = '<option value="-1">-- Skip --</option>';
+                headers.forEach((h,i) => { const o = document.createElement('option'); o.value = i; o.text = h; s.appendChild(o); });
+            });
+
+            // Auto Map
+            const find = (k) => headers.findIndex(h => h.toUpperCase().includes(k));
+            const find2 = (k1, k2) => headers.findIndex(h => h.toUpperCase().includes(k1) && h.toUpperCase().includes(k2));
+            
+            document.getElementById('mapGroup').value = find('GROUP') !== -1 ? find('GROUP') : find('CAT');
+            document.getElementById('mapTicker').value = find('TICKER') !== -1 ? find('TICKER') : find('SYMBOL');
+            document.getElementById('mapAvg').value = find2('AVG', 'PRICE');
+            document.getElementById('mapCurr').value = find2('CURR', 'PRICE') !== -1 ? find2('CURR', 'PRICE') : find2('MARKET', 'PRICE');
+            
+            let q = find2('PORTFOLIO', ''); // "PORTFOLIO" check
+            if(q === -1 || headers[q].toUpperCase().includes('TEST')) q = find('SHARES'); // Fallback
+            if(q === -1) q = find('QTY');
+            document.getElementById('mapQty').value = q;
+
+            document.getElementById('importMapper').classList.remove('hidden');
+        }
+
+        function cancelMapping() { document.getElementById('importMapper').classList.add('hidden'); pendingCSVData = null; }
+
+        function applyMapping() {
+            if(!pendingCSVData) return;
+            const getIdx = (id) => parseInt(document.getElementById(id).value);
+            const iG = getIdx('mapGroup'), iT = getIdx('mapTicker'), iA = getIdx('mapAvg'), iC = getIdx('mapCurr'), iQ = getIdx('mapQty');
+
+            if(iT === -1 || iC === -1 || iQ === -1) return alert('Ticker, Price, Qty required');
+
+            const { rows, hIdx } = pendingCSVData;
+            const assets = [];
+
+            for(let i = hIdx + 1; i < rows.length; i++) {
+                const cells = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.trim().replace(/['"]+/g, '').replace(/[$,]/g, ''));
+                if(cells.length <= Math.max(iT, iC, iQ)) continue;
+
+                let t = cells[iT];
+                // Strict Filter: reject numbers masquerading as tickers
+                if(!t || t.toUpperCase().includes('TOTAL') || !isNaN(parseFloat(t)) || t.length > 12) continue;
+
+                const q = parseFloat(cells[iQ]);
+                if(isNaN(q) || q <= 0) continue;
+
+                const avg = iA !== -1 ? (parseFloat(cells[iA])||0) : 0;
+                const cur = parseFloat(cells[iC])||0;
+                const grp = iG !== -1 ? (cells[iG] || 'Other') : 'Other';
+
+                assets.push({ ticker: t, group: grp, qty: q, avgPrice: avg, currPrice: cur, value: q*cur, percent: 0 });
+            }
+
+            if(!assets.length) return alert('No valid assets found');
+            
+            assets.sort((a,b) => b.value - a.value);
+            const tot = assets.reduce((s,a)=>s+a.value,0);
+            assets.forEach(a => a.percent = tot ? (a.value/tot)*100 : 0);
+            
+            portfolioAssets = assets;
+            localStorage.setItem(PORTFOLIO_KEY, JSON.stringify(assets));
+            renderPortfolioTable();
+            document.getElementById('importMapper').classList.add('hidden');
+            alert('Success!');
+        }
+
+        // --- Portfolio Render ---
+        function sortPortfolio(col) {
+            if(lastSortCol === col) sortDirection *= -1; else sortDirection = 1;
+            lastSortCol = col;
+            
+            document.querySelectorAll('.sort-icon').forEach(e => e.className = 'sort-icon');
+            const ico = document.getElementById('sort-'+col);
+            if(ico) ico.className = sortDirection === 1 ? 'sort-icon sort-asc' : 'sort-icon sort-desc';
+
+            portfolioAssets.sort((a,b) => {
+                let va = a[col], vb = b[col];
+                if(typeof va === 'string') { va=va.toLowerCase(); vb=vb.toLowerCase(); }
+                if(va < vb) return sortDirection === 1 ? 1 : -1; // Value desc default
+                if(va > vb) return sortDirection === 1 ? -1 : 1;
+                return 0;
+            });
+            
+            // Text fields usually asc default
+            if(col==='ticker' || col==='group') {
+                 portfolioAssets.sort((a,b) => {
+                    let va = a[col].toLowerCase(), vb = b[col].toLowerCase();
+                    if(va < vb) return sortDirection === 1 ? -1 : 1;
+                    if(va > vb) return sortDirection === 1 ? 1 : -1;
+                    return 0;
+                 });
+            }
+            renderPortfolioTable();
+        }
+
+        function renderPortfolioTable() {
+            const tb = document.getElementById('portfolioTableBody');
+            tb.innerHTML = '';
+            let tot = 0;
+            
+            portfolioAssets.forEach(a => {
+                tot += a.value;
+                const tr = document.createElement('tr');
+                tr.className = "bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition";
+                
+                let clr = "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+                if(a.group==='A') clr = "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+                else if(a.group==='B') clr = "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
+                else if(a.group==='C') clr = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+                else if(a.group==='D') clr = "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+
+                tr.innerHTML = `<td class="px-4 py-3"><span class="${clr} text-xs font-medium px-2.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">${a.group}</span></td><td class="px-4 py-3 font-bold">${a.ticker}</td><td class="px-4 py-3 text-right font-mono">${fmtNum(a.qty)}</td><td class="px-4 py-3 text-right font-mono text-xs text-gray-500">$${a.avgPrice.toFixed(2)}</td><td class="px-4 py-3 text-right font-mono">$${a.currPrice.toFixed(2)}</td><td class="px-4 py-3 text-right font-bold">${fmtMoney(a.value)}</td><td class="px-4 py-3 text-right text-xs">${a.percent.toFixed(1)}%</td>`;
+                tb.appendChild(tr);
+            });
+            document.getElementById('portTotalValue').innerText = fmtMoney(tot);
+            document.getElementById('chartTotalCount').innerText = portfolioAssets.length;
+            document.getElementById('catTotalCount').innerText = new Set(portfolioAssets.map(p=>p.group)).size;
+            
+            renderPortfolioChart();
+            renderCategoryChart();
+        }
+
+        // --- Main Logic (Clear, Presets, Calc) ---
+        function clearFields() {
+            if(!confirm('Clear?')) return;
+            ['tickerSymbol','shares','avgPrice','currPrice','initialCapital','monthlyContribution','divYield','manualGrowth'].forEach(id => { const e=document.getElementById(id); if(e){ e.value=''; localStorage.removeItem(id); } });
+            runSimulation();
+        }
+        
+        // Presets (Shortened for reliability)
+        function openPresetsModal() { document.getElementById('presetsModal').classList.remove('hidden'); document.getElementById('presetsModal').classList.add('flex'); renderPresetsList(); }
+        function closePresetsModal() { document.getElementById('presetsModal').classList.add('hidden'); document.getElementById('presetsModal').classList.remove('flex'); }
+        function getPresets() { return JSON.parse(localStorage.getItem(PRESETS_KEY)||'{}'); }
+        function updateHeaderPresets() {
+            const s = document.getElementById('headerPresetSelect'); s.innerHTML = '<option value="" disabled selected>📂 Load Preset...</option>';
+            Object.keys(getPresets()).forEach(n => { const o = document.createElement('option'); o.value = n; o.text = n; s.appendChild(o); });
+        }
+        function loadPresetFromHeader(n) { loadPreset(n); document.getElementById('headerPresetSelect').value = ""; }
+        function savePreset() {
+            const name = document.getElementById('newPresetName').value.trim();
+            if(!name) return;
+            const data = {};
+            PERSISTENT_IDS.forEach(id => { const el=document.getElementById(id); if(el) data[id] = el.type==='checkbox' ? el.checked : el.value; });
+            localStorage.setItem(PRESETS_KEY, JSON.stringify({ ...getPresets(), [name]: data }));
+            renderPresetsList(); updateHeaderPresets();
+        }
+        function loadPreset(name) {
+            const data = getPresets()[name];
+            if(!data) return;
+            Object.keys(data).forEach(id => { const el=document.getElementById(id); if(el) { if(el.type==='checkbox') el.checked=data[id]; else el.value=data[id]; localStorage.setItem(id, data[id]); } });
+            updateGrowthInput(); toggleVolatilityControls();
+            if(document.getElementById('view-simulation').classList.contains('active')) runSimulation(); else calculateAveraging();
+            closePresetsModal();
+        }
+        function deletePreset(n) { if(confirm('Del?')) { const p = getPresets(); delete p[n]; localStorage.setItem(PRESETS_KEY, JSON.stringify(p)); renderPresetsList(); updateHeaderPresets(); } }
+        function renderPresetsList() {
+            const l = document.getElementById('presetsList'); l.innerHTML = '';
+            Object.keys(getPresets()).forEach(n => {
+                const d = document.createElement('div'); d.className="flex justify-between p-2 bg-gray-50 dark:bg-gray-800 mb-1 rounded";
+                d.innerHTML = `<span>${n}</span><div><button onclick="loadPreset('${n}')" class="text-green-500 mr-2">Load</button><button onclick="deletePreset('${n}')" class="text-red-500">X</button></div>`;
+                l.appendChild(d);
+            });
+        }
+        function exportPresets() {
+             const a = document.createElement('a');
+             a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(getPresets()));
+             a.download = "presets.json"; document.body.appendChild(a); a.click(); a.remove();
+        }
+        function importPresets(i) {
+            const r = new FileReader();
+            r.onload = (e) => {
+                try { localStorage.setItem(PRESETS_KEY, JSON.stringify({ ...getPresets(), ...JSON.parse(e.target.result) })); renderPresetsList(); updateHeaderPresets(); alert('OK'); } catch(e) { alert('Error'); }
+            };
+            if(i.files[0]) r.readAsText(i.files[0]);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSavedData(); setupAutoSave(); toggleVolatilityControls(); updateGrowthInput(); updateHeaderPresets(); runSimulation();
+        });
     </script>
 </body>
 </html>
