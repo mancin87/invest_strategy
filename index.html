@@ -69,7 +69,7 @@
                 <div>
                     <h1 class="text-xl font-bold leading-tight hidden md:block">Universal Strategy Tool</h1>
                     <h1 class="text-xl font-bold leading-tight md:hidden">Strategy Tool</h1>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Yield Model & Repair Calculator (v4.4)</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Yield Model & Repair Calculator (v4.5)</p>
                 </div>
             </div>
             
@@ -143,6 +143,7 @@
                     <div class="input-group">
                         <label>Ежемесячный взнос ($)</label>
                         <input type="number" id="monthlyContribution" value="0" placeholder="Долив средств">
+                        <p class="text-xs text-green-600 dark:text-green-400 mt-1">Всегда покупает акции (DCA)</p>
                     </div>
                     <hr class="dark:border-gray-700">
                     <div class="input-group">
@@ -538,9 +539,6 @@
         function loadPresetFromHeader(name) {
             if(!name) return;
             loadPreset(name);
-            // Reset selection so user can re-select same one if needed (though redundant) 
-            // or better yet, keep it to show current. 
-            // But since values can change, showing "Load preset..." is safer UI state.
             document.getElementById('headerPresetSelect').value = "";
         }
 
@@ -827,9 +825,13 @@
                 if (currentPrice < 0.01) currentPrice = 0.01;
 
                 // 2. Monthly Contribution
-                accumulatedCash += monthlyContrib;
-                totalInvested += monthlyContrib;
-                totalMonthlyContribs += monthlyContrib;
+                let sharesFromDCA = 0;
+                if(monthlyContrib > 0) {
+                    sharesFromDCA = monthlyContrib / currentPrice;
+                    currentShares += sharesFromDCA;
+                    totalInvested += monthlyContrib;
+                    totalMonthlyContribs += monthlyContrib;
+                }
 
                 // 3. Dividend Calculation
                 let monthlyYield = (divYieldPercent / 100) / 12;
@@ -837,18 +839,27 @@
                 let currentDivTotal = (currentPrice * currentShares) * monthlyYield * divNoise;
                 cumulativeDividends += currentDivTotal;
                 
-                // 4. Action
+                // 4. Action & Labeling
                 let actionText = "";
+                let sharesFromDivs = 0;
                 
+                // Build label
+                let dcaLabel = "";
+                if(sharesFromDCA > 0) dcaLabel = `DCA: +${sharesFromDCA.toFixed(2)}`;
+
                 if (reinvestMode === 'reinvest') {
-                    accumulatedCash += currentDivTotal; 
-                    let sharesToBuy = accumulatedCash / currentPrice;
-                    currentShares += sharesToBuy;
-                    accumulatedCash = 0; 
-                    actionText = `+${sharesToBuy.toFixed(2)} Акций`;
+                    // Reinvest: Buy more
+                    sharesFromDivs = currentDivTotal / currentPrice;
+                    currentShares += sharesFromDivs;
+                    
+                    let divLabel = `Div: +${sharesFromDivs.toFixed(2)}`;
+                    actionText = dcaLabel ? `${dcaLabel} | ${divLabel}` : divLabel;
                 } else {
+                    // Cash Flow: Stack
                     accumulatedCash += currentDivTotal;
-                    actionText = `+${fmtMoney(currentDivTotal)} (Всего: ${fmtMoney(accumulatedCash)})`;
+                    
+                    let divLabel = `Div: +${fmtMoney(currentDivTotal)}`;
+                    actionText = dcaLabel ? `${dcaLabel} | ${divLabel}` : divLabel;
                 }
 
                 // 5. Equity Calc
